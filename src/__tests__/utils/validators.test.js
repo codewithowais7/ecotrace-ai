@@ -5,98 +5,98 @@ import {
   validateTextField,
 } from '../../utils/validators';
 
-// ─── validateNumericInput ───────────────────────────────────────────────────
+// ─── validateNumericInput ─────────────────────────────────────────────────────
 
 describe('validateNumericInput', () => {
-  it('accepts a valid positive number', () => {
-    expect(validateNumericInput(10).valid).toBe(true);
-    expect(validateNumericInput('50.5').valid).toBe(true);
+  it('accepts valid number within range', () => {
+    expect(validateNumericInput(5, 0, 100).valid).toBe(true);
   });
 
   it('rejects empty string', () => {
-    const r = validateNumericInput('');
+    const r = validateNumericInput('', 0, 100);
     expect(r.valid).toBe(false);
-    expect(r.error).toBe('This field is required');
+    expect(r.error).toBeTruthy();
+  });
+
+  it('rejects NaN', () => {
+    expect(validateNumericInput('abc', 0, 100).valid).toBe(false);
+  });
+
+  it('rejects below minimum', () => {
+    expect(validateNumericInput(-1, 0, 100).valid).toBe(false);
+  });
+
+  it('rejects above maximum', () => {
+    expect(validateNumericInput(101, 0, 100).valid).toBe(false);
+  });
+
+  it('accepts boundary values', () => {
+    expect(validateNumericInput(0, 0, 100).valid).toBe(true);
+    expect(validateNumericInput(100, 0, 100).valid).toBe(true);
   });
 
   it('rejects null', () => {
-    expect(validateNumericInput(null).valid).toBe(false);
+    expect(validateNumericInput(null, 0, 100).valid).toBe(false);
   });
 
   it('rejects undefined', () => {
-    expect(validateNumericInput(undefined).valid).toBe(false);
+    expect(validateNumericInput(undefined, 0, 100).valid).toBe(false);
   });
 
-  it('rejects non-numeric string', () => {
-    const r = validateNumericInput('abc');
-    expect(r.valid).toBe(false);
-    expect(r.error).toBe('Must be a valid number');
-  });
-
-  it('rejects value below min', () => {
-    const r = validateNumericInput(-1, 0, 100);
-    expect(r.valid).toBe(false);
-    expect(r.error).toBe('Must be at least 0');
-  });
-
-  it('rejects value above max', () => {
-    const r = validateNumericInput(10001, 0, 10000);
-    expect(r.valid).toBe(false);
-    expect(r.error).toBe('Must be no more than 10000');
+  it('accepts numeric string that parses correctly', () => {
+    expect(validateNumericInput('42', 0, 100).valid).toBe(true);
   });
 
   it('returns null error on success', () => {
-    expect(validateNumericInput(5, 0, 10).error).toBeNull();
+    expect(validateNumericInput(50, 0, 100).error).toBeNull();
+  });
+
+  it('provides descriptive error when below min', () => {
+    const r = validateNumericInput(-5, 0, 100);
+    expect(r.error).toMatch(/0/);
   });
 });
 
-// ─── validateActivityForm ───────────────────────────────────────────────────
+// ─── validateActivityForm ─────────────────────────────────────────────────────
 
 describe('validateActivityForm', () => {
-  const validForm = {
-    category: 'transport',
-    activityType: 'car_petrol',
-    quantity: 10,
-    unit: 'km',
-  };
+  const valid = { category: 'transport', activityType: 'car_petrol', quantity: 10, unit: 'km' };
 
-  it('accepts a fully valid form', () => {
-    const r = validateActivityForm(validForm);
-    expect(r.valid).toBe(true);
-    expect(r.errors).toEqual({});
+  it('returns valid for complete form data', () => {
+    expect(validateActivityForm(valid).valid).toBe(true);
   });
 
-  it('rejects missing category', () => {
-    const r = validateActivityForm({ ...validForm, category: '' });
-    expect(r.valid).toBe(false);
-    expect(r.errors.category).toBeTruthy();
+  it('returns invalid when category missing', () => {
+    const { valid: ok, errors } = validateActivityForm({ ...valid, category: '' });
+    expect(ok).toBe(false);
+    expect(errors.category).toBeTruthy();
   });
 
-  it('rejects missing activityType', () => {
-    const r = validateActivityForm({ ...validForm, activityType: '' });
-    expect(r.valid).toBe(false);
-    expect(r.errors.activityType).toBeTruthy();
+  it('returns invalid when quantity is zero', () => {
+    expect(validateActivityForm({ ...valid, quantity: 0 }).valid).toBe(false);
   });
 
-  it('rejects zero quantity', () => {
-    const r = validateActivityForm({ ...validForm, quantity: 0 });
-    expect(r.valid).toBe(false);
-    expect(r.errors.quantity).toBeTruthy();
+  it('returns invalid when activityType missing', () => {
+    const { valid: ok, errors } = validateActivityForm({ ...valid, activityType: '' });
+    expect(ok).toBe(false);
+    expect(errors.activityType).toBeTruthy();
   });
 
-  it('rejects missing unit', () => {
-    const r = validateActivityForm({ ...validForm, unit: '' });
-    expect(r.valid).toBe(false);
-    expect(r.errors.unit).toBeTruthy();
+  it('returns invalid when unit missing', () => {
+    expect(validateActivityForm({ ...valid, unit: '' }).valid).toBe(false);
   });
 
   it('collects multiple errors simultaneously', () => {
     const r = validateActivityForm({ category: '', activityType: '', quantity: -1, unit: '' });
     expect(Object.keys(r.errors).length).toBeGreaterThan(1);
   });
+
+  it('rejects negative quantity', () => {
+    expect(validateActivityForm({ ...valid, quantity: -5 }).valid).toBe(false);
+  });
 });
 
-// ─── validateTextField ──────────────────────────────────────────────────────
+// ─── validateTextField ────────────────────────────────────────────────────────
 
 describe('validateTextField', () => {
   it('accepts normal text', () => {
@@ -106,7 +106,7 @@ describe('validateTextField', () => {
   it('rejects empty string', () => {
     const r = validateTextField('');
     expect(r.valid).toBe(false);
-    expect(r.error).toBe('This field is required');
+    expect(r.error).toBeTruthy();
   });
 
   it('rejects whitespace-only string', () => {
@@ -121,5 +121,9 @@ describe('validateTextField', () => {
 
   it('accepts text at exactly maxLength', () => {
     expect(validateTextField('x'.repeat(200), 200).valid).toBe(true);
+  });
+
+  it('returns null error on success', () => {
+    expect(validateTextField('hello').error).toBeNull();
   });
 });

@@ -3,7 +3,7 @@
  * Redirects to /dashboard on completion.
  */
 
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -104,12 +104,10 @@ StepTwo.propTypes = {
 function StepThree({ goal, onChange, error }) {
   return (
     <section aria-label="Step 3: Set your daily goal">
-      <p className="text-slate-400 text-sm mb-2">
-        Start with the average and reduce over time.
-      </p>
+      <p className="text-slate-400 text-sm mb-2">Start with the average and reduce over time.</p>
       <p className="text-xs text-slate-500 mb-6">
-        🇮🇳 Indian average: {APP_CONSTANTS.INDIA_AVERAGE_DAILY_KG} kg/day &nbsp;·&nbsp;
-        🌍 Global average: {APP_CONSTANTS.GLOBAL_AVERAGE_DAILY_KG} kg/day
+        🇮🇳 Indian average: {APP_CONSTANTS.INDIA_AVERAGE_DAILY_KG} kg/day &nbsp;·&nbsp; 🌍 Global
+        average: {APP_CONSTANTS.GLOBAL_AVERAGE_DAILY_KG} kg/day
       </p>
       <Input
         id="dailyGoal"
@@ -135,15 +133,8 @@ StepThree.propTypes = {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function OnboardingPage() {
-  const { updateUserProfile, setOnboardingComplete, onboardingComplete } =
-    useContext(AppContext);
+  const { updateUserProfile, setOnboardingComplete, onboardingComplete } = useContext(AppContext);
   const navigate = useNavigate();
-
-  // Redirect if already onboarded
-  if (onboardingComplete) {
-    navigate('/dashboard', { replace: true });
-    return null;
-  }
 
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
@@ -151,6 +142,17 @@ export default function OnboardingPage() {
   const [transport, setTransport] = useState('bus');
   const [goal, setGoal] = useState(APP_CONSTANTS.DEFAULT_DAILY_GOAL_KG);
   const [errors, setErrors] = useState({});
+
+  // Redirect if already onboarded
+  useEffect(() => {
+    if (onboardingComplete) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [onboardingComplete, navigate]);
+
+  if (onboardingComplete) {
+    return null;
+  }
 
   function validate() {
     const newErrors = {};
@@ -190,11 +192,16 @@ export default function OnboardingPage() {
   const progressPercent = ((step - 1) / 2) * 100;
 
   return (
-    <main id="main-content" className="flex flex-col items-center justify-center min-h-[80vh] px-4 py-12">
+    <main
+      id="main-content"
+      className="flex flex-col items-center justify-center min-h-[80vh] px-4 py-12"
+    >
       <div className="w-full max-w-md">
         {/* ── Page heading ── */}
         <div className="text-center mb-8">
-          <span aria-hidden="true" className="text-5xl">🌱</span>
+          <span aria-hidden="true" className="text-5xl">
+            🌱
+          </span>
           <h1 className="text-2xl font-bold text-white mt-3">Welcome to EcoTrace AI</h1>
           <p className="text-slate-400 text-sm mt-1">Set up your profile in 3 quick steps</p>
         </div>
@@ -226,8 +233,8 @@ export default function OnboardingPage() {
                   n < step
                     ? 'bg-green-600 text-white'
                     : n === step
-                    ? 'ring-2 ring-green-500 bg-transparent text-green-400'
-                    : 'bg-[#0f3460] text-slate-500',
+                      ? 'ring-2 ring-green-500 bg-transparent text-green-400'
+                      : 'bg-[#0f3460] text-slate-500',
                 ].join(' ')}
               >
                 {n < step ? '✓' : n}
@@ -248,7 +255,10 @@ export default function OnboardingPage() {
           {step === 1 && (
             <StepOne
               name={name}
-              onChange={(e) => { setName(e.target.value); setErrors({}); }}
+              onChange={(e) => {
+                setName(e.target.value);
+                setErrors({});
+              }}
               error={errors.name}
             />
           )}
@@ -263,7 +273,10 @@ export default function OnboardingPage() {
           {step === 3 && (
             <StepThree
               goal={goal}
-              onChange={(e) => { setGoal(e.target.value); setErrors({}); }}
+              onChange={(e) => {
+                setGoal(e.target.value);
+                setErrors({});
+              }}
               error={errors.goal}
             />
           )}
@@ -274,7 +287,10 @@ export default function OnboardingPage() {
           {step > 1 && (
             <Button
               variant="secondary"
-              onClick={() => { setStep((s) => s - 1); setErrors({}); }}
+              onClick={() => {
+                setStep((s) => s - 1);
+                setErrors({});
+              }}
               className="flex-1"
             >
               ← Back

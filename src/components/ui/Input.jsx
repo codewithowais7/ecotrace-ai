@@ -35,8 +35,7 @@ export default function Input({
 }) {
   const hintId = hint ? `${id}-hint` : undefined;
   const errorId = error ? `${id}-error` : undefined;
-  const describedBy =
-    [hintId, errorId].filter(Boolean).join(' ') || undefined;
+  const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined;
 
   return (
     <div className={`flex flex-col gap-1 ${className ?? ''}`}>
@@ -79,12 +78,7 @@ export default function Input({
 
       {/* Inline error — role="alert" so screen readers announce it immediately */}
       {error && (
-        <p
-          id={errorId}
-          role="alert"
-          aria-live="polite"
-          className="text-xs text-red-400"
-        >
+        <p id={errorId} role="alert" aria-live="polite" className="text-xs text-red-400">
           {error}
         </p>
       )}

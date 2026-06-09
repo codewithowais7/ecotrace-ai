@@ -40,5 +40,3 @@ LoadingSpinner.propTypes = {
   message: PropTypes.string,
   size: PropTypes.oneOf(['sm', 'md', 'lg']),
 };
-
-

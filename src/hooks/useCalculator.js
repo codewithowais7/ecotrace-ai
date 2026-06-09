@@ -23,7 +23,7 @@ import { calculateTotalEmissions } from '../utils/calculator';
  * }}
  */
 export function useCalculator() {
-  const { addActivity, activities, dailyStats, emissionLevel, goalProgress } =
+  const { addActivity, removeActivity, activities, dailyStats, emissionLevel, goalProgress } =
     useContext(AppContext);
 
   /**
@@ -56,6 +56,7 @@ export function useCalculator() {
 
   return {
     logActivity,
+    removeActivity,
     activities,
     dailyStats,
     emissionLevel,

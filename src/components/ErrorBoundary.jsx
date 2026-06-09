@@ -29,7 +29,9 @@ export default class ErrorBoundary extends React.Component {
           aria-live="assertive"
           className="flex flex-col items-center justify-center min-h-screen gap-6 px-4 text-center"
         >
-          <span aria-hidden="true" className="text-6xl">🌿</span>
+          <span aria-hidden="true" className="text-6xl">
+            🌿
+          </span>
           <h1 className="text-2xl font-bold text-white">Something went wrong</h1>
           <p className="text-slate-400 max-w-sm">
             We had trouble loading this section. Your data is safe — please try reloading.

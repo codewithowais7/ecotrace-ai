@@ -22,10 +22,7 @@ export default function Header() {
   const location = useLocation();
 
   return (
-    <header
-      role="banner"
-      className="sticky top-0 z-40 bg-[#16213e] border-b border-[#0f3460]"
-    >
+    <header role="banner" className="sticky top-0 z-40 bg-[#16213e] border-b border-[#0f3460]">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Brand */}
         <Link

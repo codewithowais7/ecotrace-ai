@@ -12,9 +12,7 @@ export default function Footer() {
         Made with <span aria-label="love">💚</span> for the planet · EcoTrace AI ·{' '}
         {new Date().getFullYear()}
       </p>
-      <p className="text-xs mt-1">
-        Emission factors: IPCC AR6, EPA, CEA India 2023
-      </p>
+      <p className="text-xs mt-1">Emission factors: IPCC AR6, EPA, CEA India 2023</p>
     </footer>
   );
 }

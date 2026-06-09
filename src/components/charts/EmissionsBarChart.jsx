@@ -5,15 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const tooltipStyle = {
   background: '#16213e',
@@ -34,9 +26,7 @@ function EmissionsBarChart({ data, title, ariaLabel }) {
 
   return (
     <div role="img" aria-label={label}>
-      {title && (
-        <h3 className="text-sm font-medium text-slate-300 mb-2">{title}</h3>
-      )}
+      {title && <h3 className="text-sm font-medium text-slate-300 mb-2">{title}</h3>}
 
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>

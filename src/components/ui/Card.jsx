@@ -29,5 +29,3 @@ Card.propTypes = {
   as: PropTypes.oneOf(['div', 'section', 'article']),
   ariaLabel: PropTypes.string,
 };
-
-

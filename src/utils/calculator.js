@@ -3,7 +3,7 @@
  * All calculations use IPCC AR6 / EPA / CEA India 2023 emission factors.
  */
 
-import { EMISSION_FACTORS, } from '../constants/emissionFactors';
+import { EMISSION_FACTORS } from '../constants/emissionFactors';
 import { EMISSION_LEVEL_CONFIG } from '../constants/categories';
 import { sanitizeNumber } from './sanitizers';
 
@@ -119,9 +119,7 @@ export function calculateTotalEmissions(activities) {
     }
   }
 
-  const total = round(
-    breakdown.transport + breakdown.food + breakdown.energy + breakdown.shopping
-  );
+  const total = round(breakdown.transport + breakdown.food + breakdown.energy + breakdown.shopping);
 
   return { total, breakdown };
 }

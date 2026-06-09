@@ -22,6 +22,9 @@ export default [
         console: 'readonly',
         process: 'readonly',
         import: 'readonly',
+        localStorage: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
       },
       parserOptions: {
         ecmaFeatures: { jsx: true },

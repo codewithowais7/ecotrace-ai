@@ -14,7 +14,11 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 
-import { calculateTotalEmissions, getEmissionLevel, calculateGoalPercentage } from '../utils/calculator';
+import {
+  calculateTotalEmissions,
+  getEmissionLevel,
+  calculateGoalPercentage,
+} from '../utils/calculator';
 import { sanitizeFormData } from '../utils/sanitizers';
 import { getStorageItem, setStorageItem } from '../utils/storage';
 
@@ -119,10 +123,7 @@ export function AppProvider({ children }) {
 
   // ── Computed values ────────────────────────────────────────────────────────
 
-  const dailyStats = useMemo(
-    () => calculateTotalEmissions(state.activities),
-    [state.activities]
-  );
+  const dailyStats = useMemo(() => calculateTotalEmissions(state.activities), [state.activities]);
 
   const emissionLevel = useMemo(() => getEmissionLevel(dailyStats.total), [dailyStats.total]);
 

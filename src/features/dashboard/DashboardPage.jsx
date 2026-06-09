@@ -34,11 +34,7 @@ export default function DashboardPage() {
   const remaining = userProfile.dailyGoal - dailyStats.total;
   const overBy = dailyStats.total - userProfile.dailyGoal;
   const barColor =
-    goalProgress > 100
-      ? 'bg-red-500'
-      : goalProgress > 75
-      ? 'bg-yellow-500'
-      : 'bg-green-500';
+    goalProgress > 100 ? 'bg-red-500' : goalProgress > 75 ? 'bg-yellow-500' : 'bg-green-500';
 
   return (
     <main
@@ -53,13 +49,8 @@ export default function DashboardPage() {
         <Card>
           <h2 className="text-lg font-semibold text-white mb-4">Today&apos;s Footprint</h2>
           <div className="flex items-center gap-3 flex-wrap">
-            <p className="text-4xl font-bold text-green-400">
-              {formatEmissions(dailyStats.total)}
-            </p>
-            <Badge
-              level={emissionLevel}
-              value={formatEmissions(dailyStats.total)}
-            />
+            <p className="text-4xl font-bold text-green-400">{formatEmissions(dailyStats.total)}</p>
+            <Badge level={emissionLevel} value={formatEmissions(dailyStats.total)} />
           </div>
 
           {/* Goal progress */}
@@ -116,11 +107,7 @@ export default function DashboardPage() {
       <section aria-label="Log new activity">
         <h2 className="text-lg font-semibold text-white mb-4">Log Activity</h2>
         <Card>
-          <ActivityForm
-            onSuccess={() =>
-              announceToScreenReader('Activity added to your log')
-            }
-          />
+          <ActivityForm onSuccess={() => announceToScreenReader('Activity added to your log')} />
         </Card>
       </section>
 
@@ -129,16 +116,11 @@ export default function DashboardPage() {
         <h2 className="text-lg font-semibold text-white mb-4">Today&apos;s Log</h2>
         <Card>
           {activities.length === 0 ? (
-            <p className="text-slate-400">
-              No activities logged yet. Add your first one above.
-            </p>
+            <p className="text-slate-400">No activities logged yet. Add your first one above.</p>
           ) : (
             <ul aria-label="List of today's activities" className="divide-y divide-[#0f3460]">
               {activities.map((act) => (
-                <li
-                  key={act.id}
-                  className="flex justify-between items-center py-3"
-                >
+                <li key={act.id} className="flex justify-between items-center py-3">
                   <div>
                     <span className="text-slate-200 capitalize">
                       {act.activityType?.replace(/_/g, ' ')}

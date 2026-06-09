@@ -90,9 +90,7 @@ export default function InsightsPage() {
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div>
         <h1 className="text-2xl font-bold text-white mb-2">Personalized Insights</h1>
-        <p className="text-slate-400">
-          Get AI-powered tips based on your actual footprint data.
-        </p>
+        <p className="text-slate-400">Get AI-powered tips based on your actual footprint data.</p>
       </div>
 
       {/* ── Generate button ─────────────────────────────────────────────────── */}
@@ -117,15 +115,10 @@ export default function InsightsPage() {
       </div>
 
       {/* ── Dynamic AI tips — aria-live region ─────────────────────────────── */}
-      <div
-        aria-live="polite"
-        aria-label="AI-generated carbon reduction tips"
-      >
+      <div aria-live="polite">
         {insights.length > 0 && (
           <section aria-label="Your personalised AI tips">
-            <h2 className="text-lg font-semibold text-white mb-4">
-              Your Personalised Tips
-            </h2>
+            <h2 className="text-lg font-semibold text-white mb-4">Your Personalised Tips</h2>
             <ul className="flex flex-col gap-4 list-none p-0">
               {insights.map((tip, i) => (
                 <li key={i}>
@@ -140,13 +133,9 @@ export default function InsightsPage() {
                           <span className="text-xs text-slate-400 capitalize">
                             Category: {tip.category}
                           </span>
-                          <span className="text-xs text-green-400">
-                            Impact: {tip.impact}
-                          </span>
+                          <span className="text-xs text-green-400">Impact: {tip.impact}</span>
                           {tip.saving && (
-                            <span className="text-xs text-slate-400">
-                              ~{tip.saving} saved
-                            </span>
+                            <span className="text-xs text-slate-400">~{tip.saving} saved</span>
                           )}
                         </div>
                       </div>

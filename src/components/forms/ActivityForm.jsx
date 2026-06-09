@@ -84,14 +84,6 @@ const CATEGORY_OPTIONS = ACTIVITY_CATEGORIES.map((c) => ({
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-const INITIAL_STATE = {
-  category: '',
-  activityType: '',
-  quantity: '',
-  errors: {},
-  submitting: false,
-};
-
 /**
  * Form for logging a new carbon emission activity.
  *

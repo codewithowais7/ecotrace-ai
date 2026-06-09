@@ -5,14 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const tooltipStyle = {
   background: '#16213e',
@@ -58,9 +51,7 @@ function EmissionsPieChart({ data, title, ariaLabel }) {
 
   return (
     <div role="img" aria-label={label}>
-      {title && (
-        <h3 className="text-sm font-medium text-slate-300 mb-2">{title}</h3>
-      )}
+      {title && <h3 className="text-sm font-medium text-slate-300 mb-2">{title}</h3>}
 
       <ResponsiveContainer width="100%" height={220}>
         <PieChart>

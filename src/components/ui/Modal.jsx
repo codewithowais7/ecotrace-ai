@@ -59,7 +59,10 @@ export default function Modal({ isOpen, onClose, title, children }) {
     function handleTab(e) {
       if (e.key !== 'Tab') return;
       const elements = contentRef.current.querySelectorAll(FOCUSABLE_SELECTORS);
-      if (elements.length === 0) { e.preventDefault(); return; }
+      if (elements.length === 0) {
+        e.preventDefault();
+        return;
+      }
       const first = elements[0];
       const last = elements[elements.length - 1];
 
@@ -94,17 +97,12 @@ export default function Modal({ isOpen, onClose, title, children }) {
       className="fixed inset-0 z-50 flex items-center justify-center"
     >
       {/* Backdrop */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-black/60"
-        onClick={onClose}
-      />
+      <div aria-hidden="true" className="absolute inset-0 bg-black/60" onClick={onClose} />
 
-      {/* Modal content — stop propagation so backdrop click doesn't fire */}
+      {/* Modal content */}
       <div
         ref={contentRef}
         role="document"
-        onClick={(e) => e.stopPropagation()}
         className="relative bg-[#16213e] rounded-xl border border-[#0f3460] max-w-lg w-full mx-4 p-6 shadow-2xl"
       >
         {/* Header */}

@@ -26,9 +26,7 @@ export default function CalculatorPage() {
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div>
         <h1 className="text-2xl font-bold text-white mb-2">Carbon Calculator</h1>
-        <p className="text-slate-400">
-          Calculate the carbon footprint of any activity.
-        </p>
+        <p className="text-slate-400">Calculate the carbon footprint of any activity.</p>
       </div>
 
       {/* ── Form ───────────────────────────────────────────────────────────── */}
@@ -37,10 +35,7 @@ export default function CalculatorPage() {
       </Card>
 
       {/* ── Live result area — aria-live so updates are announced ──────────── */}
-      <div
-        aria-live="polite"
-        aria-label="Calculation results"
-      >
+      <div aria-live="polite">
         {lastResult && (
           <Card ariaLabel="Calculation result">
             <h2 className="text-lg font-semibold text-white mb-4">Result</h2>
@@ -56,9 +51,7 @@ export default function CalculatorPage() {
             </p>
 
             <div className="pt-4 border-t border-[#0f3460]">
-              <h3 className="text-sm font-medium text-slate-300 mb-3">
-                For context:
-              </h3>
+              <h3 className="text-sm font-medium text-slate-300 mb-3">For context:</h3>
               <ul className="text-sm text-slate-400 space-y-2 list-none p-0">
                 <li>
                   🇮🇳 Indian average per day:{' '}

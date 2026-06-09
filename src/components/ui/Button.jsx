@@ -6,8 +6,7 @@ import PropTypes from 'prop-types';
 
 const variantClasses = {
   primary: 'bg-green-600 hover:bg-green-500 text-white',
-  secondary:
-    'bg-[#0f3460] hover:bg-[#16213e] text-slate-200 border border-[#0f3460]',
+  secondary: 'bg-[#0f3460] hover:bg-[#16213e] text-slate-200 border border-[#0f3460]',
   danger: 'bg-red-700 hover:bg-red-600 text-white',
   ghost: 'hover:bg-white/10 text-slate-300',
 };
@@ -80,5 +79,3 @@ Button.propTypes = {
   ariaLabel: PropTypes.string,
   className: PropTypes.string,
 };
-
-
