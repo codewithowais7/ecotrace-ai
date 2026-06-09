@@ -41,3 +41,19 @@ export function validateEnvVar(varName) {
   }
   return true;
 }
+
+/**
+ * Check if all required environment variables are configured
+ * Logs warnings for missing vars — never exposes values
+ */
+export function checkRequiredEnvVars() {
+  const required = ['VITE_GEMINI_API_KEY'];
+  const missing = required.filter((key) => !import.meta.env[key]);
+  if (missing.length > 0) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `EcoTrace AI: Missing environment variables: ${missing.join(', ')}. Check .env.example for setup instructions.`
+    );
+  }
+  return missing.length === 0;
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { checkRateLimit, validateEnvVar } from '../../utils/security';
+import { checkRateLimit, validateEnvVar, checkRequiredEnvVars } from '../../utils/security';
 
 describe('checkRateLimit', () => {
   afterEach(() => vi.restoreAllMocks());
@@ -76,5 +76,29 @@ describe('validateEnvVar', () => {
     import.meta.env.VITE_BLANK_VAR = '   ';
     expect(validateEnvVar('VITE_BLANK_VAR')).toBe(false);
     expect(warnSpy).toHaveBeenCalled();
+  });
+});
+
+describe('checkRequiredEnvVars', () => {
+  const originalEnv = { ...import.meta.env };
+
+  afterEach(() => {
+    Object.keys(import.meta.env).forEach((k) => delete import.meta.env[k]);
+    Object.assign(import.meta.env, originalEnv);
+    vi.restoreAllMocks();
+  });
+
+  it('returns true when VITE_GEMINI_API_KEY is present', () => {
+    import.meta.env.VITE_GEMINI_API_KEY = 'valid-key';
+    const result = checkRequiredEnvVars();
+    expect(result).toBe(true);
+  });
+
+  it('returns false and warns when VITE_GEMINI_API_KEY is missing', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    delete import.meta.env.VITE_GEMINI_API_KEY;
+    const result = checkRequiredEnvVars();
+    expect(result).toBe(false);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('VITE_GEMINI_API_KEY'));
   });
 });
