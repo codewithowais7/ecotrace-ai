@@ -1,68 +1,253 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+/**
+ * Global application context for EcoTrace AI.
+ * Manages activities, user profile, onboarding state, and AI insights.
+ * All state is persisted to localStorage and restored on mount.
+ */
+
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+} from 'react';
 import PropTypes from 'prop-types';
 
-const AppContext = createContext(null);
+import { calculateTotalEmissions, getEmissionLevel, calculateGoalPercentage } from '../utils/calculator';
+import { sanitizeFormData } from '../utils/sanitizers';
+import { getStorageItem, setStorageItem } from '../utils/storage';
 
-const initialState = {
-  user: null,
-  emissions: [],
-  settings: {
-    theme: 'dark',
-    unit: 'kg',
-  },
+// ─── Storage keys ────────────────────────────────────────────────────────────
+
+const STORAGE_KEYS = {
+  ACTIVITIES: 'ecotrace_activities',
+  USER_PROFILE: 'ecotrace_user_profile',
+  ONBOARDING: 'ecotrace_onboarding_complete',
+  INSIGHTS: 'ecotrace_insights',
+};
+
+// ─── Initial state ────────────────────────────────────────────────────────────
+
+const DEFAULT_USER_PROFILE = {
+  name: '',
+  location: 'india',
+  dailyGoal: 13.4,
+};
+
+function buildInitialState() {
+  return {
+    activities: getStorageItem(STORAGE_KEYS.ACTIVITIES, []),
+    userProfile: getStorageItem(STORAGE_KEYS.USER_PROFILE, DEFAULT_USER_PROFILE),
+    onboardingComplete: getStorageItem(STORAGE_KEYS.ONBOARDING, false),
+    insights: getStorageItem(STORAGE_KEYS.INSIGHTS, []),
+  };
+}
+
+// ─── Reducer ─────────────────────────────────────────────────────────────────
+
+const ActionTypes = {
+  ADD_ACTIVITY: 'ADD_ACTIVITY',
+  REMOVE_ACTIVITY: 'REMOVE_ACTIVITY',
+  CLEAR_ACTIVITIES: 'CLEAR_ACTIVITIES',
+  UPDATE_USER_PROFILE: 'UPDATE_USER_PROFILE',
+  SET_ONBOARDING_COMPLETE: 'SET_ONBOARDING_COMPLETE',
+  SET_INSIGHTS: 'SET_INSIGHTS',
 };
 
 function appReducer(state, action) {
   switch (action.type) {
-    case 'SET_USER':
-      return { ...state, user: action.payload };
-    case 'ADD_EMISSION':
-      return { ...state, emissions: [...state.emissions, action.payload] };
-    case 'SET_EMISSIONS':
-      return { ...state, emissions: action.payload };
-    case 'UPDATE_SETTINGS':
-      return { ...state, settings: { ...state.settings, ...action.payload } };
-    case 'RESET':
-      return initialState;
+    case ActionTypes.ADD_ACTIVITY:
+      return { ...state, activities: [...state.activities, action.payload] };
+
+    case ActionTypes.REMOVE_ACTIVITY:
+      return {
+        ...state,
+        activities: state.activities.filter((a) => a.id !== action.payload),
+      };
+
+    case ActionTypes.CLEAR_ACTIVITIES:
+      return { ...state, activities: [] };
+
+    case ActionTypes.UPDATE_USER_PROFILE:
+      return {
+        ...state,
+        userProfile: { ...state.userProfile, ...action.payload },
+      };
+
+    case ActionTypes.SET_ONBOARDING_COMPLETE:
+      return { ...state, onboardingComplete: action.payload };
+
+    case ActionTypes.SET_INSIGHTS:
+      return { ...state, insights: action.payload };
+
     default:
       return state;
   }
 }
 
+// ─── Context ──────────────────────────────────────────────────────────────────
+
+const AppContext = createContext(null);
+
+/**
+ * Application-wide context provider.
+ * Wraps the entire app to provide shared state and actions.
+ *
+ * @param {{ children: React.ReactNode }} props
+ */
 export function AppProvider({ children }) {
-  const [state, dispatch] = useReducer(appReducer, initialState);
+  const [state, dispatch] = useReducer(appReducer, undefined, buildInitialState);
+
+  // ── Persist state slices to localStorage on change ─────────────────────────
 
   useEffect(() => {
-    const stored = localStorage.getItem('ecotrace-state');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed.emissions) {
-          dispatch({ type: 'SET_EMISSIONS', payload: parsed.emissions });
-        }
-      } catch {
-        // ignore invalid stored state
-      }
-    }
+    setStorageItem(STORAGE_KEYS.ACTIVITIES, state.activities);
+  }, [state.activities]);
+
+  useEffect(() => {
+    setStorageItem(STORAGE_KEYS.USER_PROFILE, state.userProfile);
+  }, [state.userProfile]);
+
+  useEffect(() => {
+    setStorageItem(STORAGE_KEYS.ONBOARDING, state.onboardingComplete);
+  }, [state.onboardingComplete]);
+
+  useEffect(() => {
+    setStorageItem(STORAGE_KEYS.INSIGHTS, state.insights);
+  }, [state.insights]);
+
+  // ── Computed values ────────────────────────────────────────────────────────
+
+  const dailyStats = useMemo(
+    () => calculateTotalEmissions(state.activities),
+    [state.activities]
+  );
+
+  const emissionLevel = useMemo(() => getEmissionLevel(dailyStats.total), [dailyStats.total]);
+
+  const goalProgress = useMemo(
+    () => calculateGoalPercentage(dailyStats.total, state.userProfile.dailyGoal),
+    [dailyStats.total, state.userProfile.dailyGoal]
+  );
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+
+  /**
+   * Sanitize, stamp, and add an activity to state.
+   *
+   * @param {Object} activityData - Raw form data for the activity.
+   */
+  const addActivity = useCallback((activityData) => {
+    const sanitized = sanitizeFormData(activityData);
+    const activity = {
+      ...sanitized,
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+    };
+    dispatch({ type: ActionTypes.ADD_ACTIVITY, payload: activity });
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('ecotrace-state', JSON.stringify({ emissions: state.emissions }));
-  }, [state.emissions]);
+  /**
+   * Remove an activity by its id.
+   *
+   * @param {string} id - The activity id to remove.
+   */
+  const removeActivity = useCallback((id) => {
+    dispatch({ type: ActionTypes.REMOVE_ACTIVITY, payload: id });
+  }, []);
 
-  return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>;
+  /**
+   * Clear all activities for the current day.
+   */
+  const clearActivities = useCallback(() => {
+    dispatch({ type: ActionTypes.CLEAR_ACTIVITIES });
+  }, []);
+
+  /**
+   * Merge partial updates into the user profile.
+   *
+   * @param {Partial<{ name: string, location: string, dailyGoal: number }>} updates
+   */
+  const updateUserProfile = useCallback((updates) => {
+    dispatch({ type: ActionTypes.UPDATE_USER_PROFILE, payload: updates });
+  }, []);
+
+  /**
+   * Mark onboarding as complete or incomplete.
+   *
+   * @param {boolean} val
+   */
+  const setOnboardingComplete = useCallback((val) => {
+    dispatch({ type: ActionTypes.SET_ONBOARDING_COMPLETE, payload: Boolean(val) });
+  }, []);
+
+  /**
+   * Replace the AI insights cache with a new set of tips.
+   *
+   * @param {Array} tips
+   */
+  const setInsights = useCallback((tips) => {
+    dispatch({ type: ActionTypes.SET_INSIGHTS, payload: Array.isArray(tips) ? tips : [] });
+  }, []);
+
+  // ── Context value ──────────────────────────────────────────────────────────
+
+  const contextValue = useMemo(
+    () => ({
+      // State
+      activities: state.activities,
+      userProfile: state.userProfile,
+      onboardingComplete: state.onboardingComplete,
+      insights: state.insights,
+      // Computed
+      dailyStats,
+      emissionLevel,
+      goalProgress,
+      // Actions
+      addActivity,
+      removeActivity,
+      clearActivities,
+      updateUserProfile,
+      setOnboardingComplete,
+      setInsights,
+    }),
+    [
+      state.activities,
+      state.userProfile,
+      state.onboardingComplete,
+      state.insights,
+      dailyStats,
+      emissionLevel,
+      goalProgress,
+      addActivity,
+      removeActivity,
+      clearActivities,
+      updateUserProfile,
+      setOnboardingComplete,
+      setInsights,
+    ]
+  );
+
+  return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
 }
 
 AppProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
+/**
+ * Consume the AppContext. Must be used inside an AppProvider.
+ *
+ * @returns {Object} The full context value.
+ * @throws {Error} When called outside of an AppProvider.
+ */
 export function useAppContext() {
-  const context = useContext(AppContext);
-  if (!context) {
+  const ctx = useContext(AppContext);
+  if (!ctx) {
     throw new Error('useAppContext must be used within an AppProvider');
   }
-  return context;
+  return ctx;
 }
 
 export default AppContext;

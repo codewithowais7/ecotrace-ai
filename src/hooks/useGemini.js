@@ -1,66 +1,106 @@
-import { useState, useCallback, useRef } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { sanitizeAiResponse } from '../utils/sanitizers';
-import { checkRateLimit } from '../utils/security';
+/**
+ * Custom hook for interacting with the Gemini 1.5 Flash API.
+ * Handles rate limiting, prompt construction, response sanitization,
+ * and JSON parsing of AI-generated carbon reduction tips.
+ */
 
-const RATE_LIMIT_KEY = 'gemini_api';
-const MAX_CALLS = 10;
-const WINDOW_MS = 60_000;
+import { useRef, useState } from 'react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+import { checkRateLimit } from '../utils/security';
+import { sanitizeApiResponse } from '../utils/sanitizers';
+import { APP_CONSTANTS } from '../constants/categories';
+
+/** Shared rate-limit store — persists across component re-renders for the module lifetime */
+const rateLimitStore = new Map();
 
 /**
- * Hook for interacting with the Gemini AI API
- * @returns {{ generateInsight, loading, error, clearError }}
+ * Provides Gemini AI integration with rate limiting and safe response handling.
+ *
+ * @returns {{
+ *   loading: boolean,
+ *   error: string | null,
+ *   lastResponse: Array | null,
+ *   generateTips: (emissionData: Object) => Promise<Array>
+ * }}
  */
 export function useGemini() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const clientRef = useRef(null);
+  const [lastResponse, setLastResponse] = useState(null);
 
-  const getClient = useCallback(() => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) throw new Error('VITE_GEMINI_API_KEY is not configured.');
-    if (!clientRef.current) {
-      clientRef.current = new GoogleGenerativeAI(apiKey);
-    }
-    return clientRef.current;
-  }, []);
+  /** Lazily-initialised Gemini model — only created if API key is present */
+  const model = useRef(null);
+
+  // Initialise the model once on mount if the API key is available
+  if (!model.current && import.meta.env.VITE_GEMINI_API_KEY) {
+    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+    model.current = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  }
 
   /**
-   * Generate an AI insight for the given prompt
-   * @param {string} prompt
-   * @returns {Promise<string>} Sanitized AI response text
+   * Generate personalised, actionable carbon reduction tips for the user's
+   * current emission profile. Returns an empty array on rate-limit or error.
+   *
+   * @param {{ total: number, breakdown: Object, level: string }} emissionData
+   *   The user's current daily emission summary.
+   * @returns {Promise<Array<{ tip: string, category: string, impact: string, saving: string }>>}
+   *   Parsed array of tip objects, or [] on failure.
    */
-  const generateInsight = useCallback(
-    async (prompt) => {
-      if (!checkRateLimit(RATE_LIMIT_KEY, MAX_CALLS, WINDOW_MS)) {
-        setError('Too many requests. Please wait a moment before trying again.');
-        return null;
-      }
+  async function generateTips(emissionData) {
+    // ── Guard: no API key configured ─────────────────────────────────────────
+    if (!model.current) {
+      setError('Gemini API key is not configured. Add VITE_GEMINI_API_KEY to your .env file.');
+      return [];
+    }
 
-      setLoading(true);
-      setError(null);
+    // ── Guard: rate limit ─────────────────────────────────────────────────────
+    if (!checkRateLimit(rateLimitStore, 'gemini', APP_CONSTANTS.GEMINI_RATE_LIMIT_MS)) {
+      setError('Please wait a moment before requesting new insights.');
+      return [];
+    }
 
-      try {
-        const client = getClient();
-        const model = client.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
-        return sanitizeAiResponse(text);
-      } catch (err) {
-        const message =
-          err?.message?.includes('API_KEY_INVALID')
-            ? 'Invalid API key. Please check your Gemini API key configuration.'
-            : err?.message || 'Failed to generate AI insight. Please try again.';
-        setError(message);
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [getClient]
-  );
+    // ── Build prompt ──────────────────────────────────────────────────────────
+    const prompt = [
+      'You are an environmental expert.',
+      `A user has the following daily carbon footprint:`,
+      `Total: ${emissionData.total.toFixed(2)} kg CO2e.`,
+      `Breakdown:`,
+      `  Transport ${(emissionData.breakdown.transport ?? 0).toFixed(2)} kg,`,
+      `  Food ${(emissionData.breakdown.food ?? 0).toFixed(2)} kg,`,
+      `  Energy ${(emissionData.breakdown.energy ?? 0).toFixed(2)} kg,`,
+      `  Shopping ${(emissionData.breakdown.shopping ?? 0).toFixed(2)} kg.`,
+      `Level: ${emissionData.level}.`,
+      'Provide exactly 5 specific, actionable tips to reduce their carbon footprint.',
+      'Respond ONLY with a JSON array, no other text:',
+      '[{"tip": "...", "category": "transport|food|energy|shopping", "impact": "low|medium|high", "saving": "estimated kg CO2e saved"}]',
+    ]
+      .join(' ')
+      .slice(0, APP_CONSTANTS.MAX_PROMPT_CHARS * 3);
 
-  const clearError = useCallback(() => setError(null), []);
+    setLoading(true);
+    setError(null);
 
-  return { generateInsight, loading, error, clearError };
+    try {
+      const result = await model.current.generateContent(prompt);
+      const rawText = result.response.text();
+      const sanitized = sanitizeApiResponse(rawText);
+
+      // Strip markdown code fences if the model wraps its output
+      const clean = sanitized.replace(/```json|```/g, '').trim();
+
+      const tips = JSON.parse(clean);
+      if (!Array.isArray(tips)) throw new Error('Invalid response format');
+
+      setLastResponse(tips);
+      return tips;
+    } catch {
+      setError('Could not generate insights. Please try again.');
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return { loading, error, lastResponse, generateTips };
 }

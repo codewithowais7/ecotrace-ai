@@ -1,86 +1,59 @@
-import { useCallback } from 'react';
-import { useAppContext } from '../context/AppContext';
-import { calculateEmission, formatEmission } from '../utils/calculator';
-import { validateQuantity } from '../utils/validators';
-import { generateId } from '../utils/security';
+/**
+ * Custom hook that provides a validated, sanitized activity logging interface
+ * backed by the global AppContext and calculator utilities.
+ */
+
+import { useContext } from 'react';
+
+import AppContext from '../context/AppContext';
+import { validateActivityForm } from '../utils/validators';
+import { sanitizeFormData } from '../utils/sanitizers';
 
 /**
- * Hook providing calculator actions for adding/removing emission entries
+ * Provides activity logging with built-in validation and sanitization,
+ * plus direct access to the current emission stats from context.
+ *
+ * @returns {{
+ *   logActivity: (formData: Object) => { success: boolean, errors: Object },
+ *   activities: Array,
+ *   dailyStats: { total: number, breakdown: Object },
+ *   emissionLevel: string,
+ *   goalProgress: number
+ * }}
  */
 export function useCalculator() {
-  const { state, dispatch } = useAppContext();
+  const { addActivity, activities, dailyStats, emissionLevel, goalProgress } =
+    useContext(AppContext);
 
   /**
-   * Add an emission entry
-   * @param {Object} entry
-   * @param {string} entry.category
-   * @param {string} entry.subcategoryId
-   * @param {string} entry.label
-   * @param {number} entry.quantity
-   * @param {string} entry.unit
-   * @param {string} [entry.date]
-   * @returns {{ success: boolean, error?: string }}
+   * Validate and sanitize a form submission, then log it as an activity.
+   * Returns a success flag and any validation errors found.
+   *
+   * @param {Object} formData - Raw form data from the activity entry form.
+   * @param {string} formData.category - Emission category (e.g. 'transport').
+   * @param {string} formData.activityType - Specific activity key (e.g. 'car_petrol').
+   * @param {number|string} formData.quantity - Amount for the activity.
+   * @param {string} formData.unit - Unit of measurement (e.g. 'km').
+   * @param {string} [formData.description] - Optional user notes.
+   * @returns {{ success: boolean, errors: Object.<string, string> }}
    */
-  const addEntry = useCallback(
-    ({ category, subcategoryId, label, quantity, unit, date }) => {
-      const validation = validateQuantity(quantity);
-      if (!validation.valid) return { success: false, error: validation.error };
+  function logActivity(formData) {
+    const sanitized = sanitizeFormData(formData);
+    const { valid, errors } = validateActivityForm(sanitized);
 
-      let emissions;
-      try {
-        emissions = calculateEmission(subcategoryId, parseFloat(quantity));
-      } catch (err) {
-        return { success: false, error: err.message };
-      }
+    if (!valid) {
+      return { success: false, errors };
+    }
 
-      const entry = {
-        id: generateId(),
-        category,
-        subcategoryId,
-        label,
-        quantity: parseFloat(quantity),
-        unit,
-        emissions,
-        formattedEmissions: formatEmission(emissions),
-        date: date || new Date().toISOString().split('T')[0],
-        createdAt: new Date().toISOString(),
-      };
-
-      dispatch({ type: 'ADD_EMISSION', payload: entry });
-      return { success: true };
-    },
-    [dispatch]
-  );
-
-  /**
-   * Remove an emission entry by id
-   * @param {string} id
-   */
-  const removeEntry = useCallback(
-    (id) => {
-      dispatch({
-        type: 'SET_EMISSIONS',
-        payload: state.emissions.filter((e) => e.id !== id),
-      });
-    },
-    [dispatch, state.emissions]
-  );
-
-  /**
-   * Clear all emission entries
-   */
-  const clearAll = useCallback(() => {
-    dispatch({ type: 'SET_EMISSIONS', payload: [] });
-  }, [dispatch]);
-
-  const totalEmissions = state.emissions.reduce((sum, e) => sum + e.emissions, 0);
+    addActivity(sanitized);
+    return { success: true, errors: {} };
+  }
 
   return {
-    entries: state.emissions,
-    totalEmissions,
-    formattedTotal: formatEmission(totalEmissions),
-    addEntry,
-    removeEntry,
-    clearAll,
+    logActivity,
+    activities,
+    dailyStats,
+    emissionLevel,
+    goalProgress,
   };
 }
