@@ -1,16 +1,18 @@
 /**
- * Emission level badge — uses color + text + icon (never color alone).
- * Reads level config from EMISSION_LEVEL_CONFIG constants.
+ * @fileoverview Emission level badge using color, text, and icon — never color alone.
+ * @module components/ui/Badge
  */
 
 import PropTypes from 'prop-types';
 import { EMISSION_LEVEL_CONFIG } from '../../constants/categories';
 
 /**
- * @param {{
- *   level: 'low'|'medium'|'high'|'very-high',
- *   value: string
- * }} props
+ * Displays an emission level with color-coded dot, text label, and optional value.
+ *
+ * @param {Object} props
+ * @param {'low'|'medium'|'high'|'very-high'} props.level - Emission level key
+ * @param {string} props.value - Human-readable value string (e.g. '4.2 kg CO2e')
+ * @returns {JSX.Element} The rendered badge span
  */
 export default function Badge({ level, value }) {
   const config = EMISSION_LEVEL_CONFIG[level] ?? EMISSION_LEVEL_CONFIG.low;
@@ -39,3 +41,5 @@ Badge.propTypes = {
   level: PropTypes.oneOf(['low', 'medium', 'high', 'very-high']).isRequired,
   value: PropTypes.string.isRequired,
 };
+
+Badge.displayName = 'Badge';

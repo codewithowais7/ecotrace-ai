@@ -114,6 +114,6 @@ describe('useGemini hook', () => {
     });
 
     expect(tips).toEqual([]);
-    expect(result.current.error).toBe('Could not generate insights. Please try again.');
+    expect(result.current.error).toBe('Received invalid response format. Please try again.');
   });
 });

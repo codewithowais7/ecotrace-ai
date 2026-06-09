@@ -1,7 +1,6 @@
 /**
- * Custom hook for interacting with the Gemini 1.5 Flash API.
- * Handles rate limiting, prompt construction, response sanitization,
- * and JSON parsing of AI-generated carbon reduction tips.
+ * @fileoverview Custom React hook for Google Gemini AI API integration with rate limiting.
+ * @module hooks/useGemini
  */
 
 import { useRef, useState } from 'react';
@@ -10,6 +9,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { checkRateLimit } from '../utils/security';
 import { sanitizeApiResponse } from '../utils/sanitizers';
 import { APP_CONSTANTS } from '../constants/categories';
+
+/** @typedef {import('../utils/types').InsightTip} InsightTip */
 
 /** Shared rate-limit store — persists across component re-renders for the module lifetime */
 const rateLimitStore = new Map();
@@ -20,8 +21,8 @@ const rateLimitStore = new Map();
  * @returns {{
  *   loading: boolean,
  *   error: string | null,
- *   lastResponse: Array | null,
- *   generateTips: (emissionData: Object) => Promise<Array>
+ *   lastResponse: InsightTip[] | null,
+ *   generateTips: (emissionData: Object) => Promise<InsightTip[]>
  * }}
  */
 export function useGemini() {
@@ -44,8 +45,7 @@ export function useGemini() {
    *
    * @param {{ total: number, breakdown: Object, level: string }} emissionData
    *   The user's current daily emission summary.
-   * @returns {Promise<Array<{ tip: string, category: string, impact: string, saving: string }>>}
-   *   Parsed array of tip objects, or [] on failure.
+   * @returns {Promise<InsightTip[]>} Parsed array of tip objects, or [] on failure.
    */
   async function generateTips(emissionData) {
     // ── Guard: no API key configured ─────────────────────────────────────────
@@ -94,8 +94,14 @@ export function useGemini() {
 
       setLastResponse(tips);
       return tips;
-    } catch {
-      setError('Could not generate insights. Please try again.');
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        setError('Received invalid response format. Please try again.');
+      } else if (error?.message?.includes('API_KEY')) {
+        setError('API configuration error. Please check setup.');
+      } else {
+        setError('Could not generate insights. Please try again.');
+      }
       return [];
     } finally {
       setLoading(false);

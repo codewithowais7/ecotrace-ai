@@ -1,6 +1,6 @@
 /**
- * Onboarding flow — 3-step wizard that collects user profile information.
- * Redirects to /dashboard on completion.
+ * @fileoverview Onboarding wizard — 3-step flow collecting user profile and redirecting to dashboard.
+ * @module features/onboarding/OnboardingPage
  */
 
 import { useContext, useState, useEffect } from 'react';
@@ -38,6 +38,15 @@ const STEP_LABELS = ['Welcome', 'Location & Transport', 'Set Your Goal'];
 
 // ─── Step sub-components ─────────────────────────────────────────────────────
 
+/**
+ * Step 1: Name entry.
+ *
+ * @param {Object} props
+ * @param {string} props.name - Current name value
+ * @param {Function} props.onChange - Change handler for the name field
+ * @param {string} [props.error] - Validation error message
+ * @returns {JSX.Element} The rendered step-1 section
+ */
 function StepOne({ name, onChange, error }) {
   return (
     <section aria-label="Step 1: Welcome">
@@ -132,6 +141,11 @@ StepThree.propTypes = {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
+/**
+ * Main onboarding wizard page managing a 3-step flow and persisting the user profile on completion.
+ *
+ * @returns {JSX.Element | null} The rendered onboarding page or null if already onboarded
+ */
 export default function OnboardingPage() {
   const { updateUserProfile, setOnboardingComplete, onboardingComplete } = useContext(AppContext);
   const navigate = useNavigate();
@@ -304,3 +318,9 @@ export default function OnboardingPage() {
     </main>
   );
 }
+
+StepOne.displayName = 'StepOne';
+StepTwo.displayName = 'StepTwo';
+StepThree.displayName = 'StepThree';
+OnboardingPage.displayName = 'OnboardingPage';
+

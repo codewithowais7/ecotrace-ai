@@ -1,5 +1,6 @@
 /**
- * Reusable Button component with variant, size, loading, and full accessibility.
+ * @fileoverview Reusable Button component with variant, size, loading, and full accessibility support.
+ * @module components/ui/Button
  */
 
 import PropTypes from 'prop-types';
@@ -18,17 +19,19 @@ const sizeClasses = {
 };
 
 /**
- * @param {{
- *   variant?: 'primary'|'secondary'|'danger'|'ghost',
- *   size?: 'sm'|'md'|'lg',
- *   loading?: boolean,
- *   disabled?: boolean,
- *   children: React.ReactNode,
- *   onClick?: () => void,
- *   type?: 'button'|'submit'|'reset',
- *   ariaLabel?: string,
- *   className?: string
- * }} props
+ * Accessible button supporting multiple visual variants and an optional loading state.
+ *
+ * @param {Object} props
+ * @param {'primary'|'secondary'|'danger'|'ghost'} props.variant - Visual style variant
+ * @param {'sm'|'md'|'lg'} props.size - Button size
+ * @param {boolean} props.loading - Displays a spinner and disables interaction when true
+ * @param {boolean} props.disabled - Disables the button when true
+ * @param {React.ReactNode} props.children - Button label or content
+ * @param {Function} [props.onClick] - Click handler
+ * @param {'button'|'submit'|'reset'} props.type - Native HTML button type
+ * @param {string} [props.ariaLabel] - Accessible label override for icon-only buttons
+ * @param {string} [props.className] - Additional CSS class names
+ * @returns {JSX.Element} The rendered button element
  */
 export default function Button({
   variant = 'primary',
@@ -79,3 +82,5 @@ Button.propTypes = {
   ariaLabel: PropTypes.string,
   className: PropTypes.string,
 };
+
+Button.displayName = 'Button';

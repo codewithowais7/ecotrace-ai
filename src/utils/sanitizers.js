@@ -1,9 +1,10 @@
 /**
- * Input sanitization utilities for EcoTrace AI.
- * All functions are pure and safe to call with any input type.
+ * @fileoverview Input sanitization utilities using DOMPurify to prevent XSS and data corruption.
+ * @module utils/sanitizers
  */
 
 import DOMPurify from 'dompurify';
+import { APP_CONSTANTS } from '../constants/categories';
 
 /**
  * Sanitizes user text input by stripping all HTML, trimming whitespace,
@@ -60,10 +61,10 @@ export function sanitizeFormData(data) {
  * and capping the output to a maximum length to prevent oversized renders.
  *
  * @param {string} text - Raw response text from the AI API.
- * @param {number} [maxLength=3000] - Maximum length of the returned string.
+ * @param {number} [maxLength] - Maximum length of the returned string.
  * @returns {string} Sanitized plain text response.
  */
-export function sanitizeApiResponse(text, maxLength = 3000) {
+export function sanitizeApiResponse(text, maxLength = APP_CONSTANTS.MAX_API_RESPONSE_CHARS) {
   if (typeof text !== 'string') return '';
   const sanitized = DOMPurify.sanitize(text, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
   return sanitized.trim().slice(0, maxLength);

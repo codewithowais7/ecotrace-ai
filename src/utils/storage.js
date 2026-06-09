@@ -1,6 +1,6 @@
 /**
- * Safe localStorage wrapper for EcoTrace AI.
- * All functions handle missing/unavailable storage gracefully via try/catch.
+ * @fileoverview Safe localStorage wrapper with graceful error handling for all operations.
+ * @module utils/storage
  */
 
 /**

@@ -1,6 +1,6 @@
 /**
- * Bar chart visualising CO2e emissions by category.
- * Includes an accessible screen-reader table fallback.
+ * @fileoverview Bar chart visualising CO2e emissions by category with accessible table fallback.
+ * @module components/charts/EmissionsBarChart
  */
 
 import React from 'react';
@@ -15,13 +15,15 @@ const tooltipStyle = {
 };
 
 /**
- * @param {{
- *   data: Array<{ category: string, value: number, color: string }>,
- *   title?: string,
- *   ariaLabel?: string
- * }} props
+ * Bar chart displaying CO2e emissions per category with an sr-only table fallback.
+ *
+ * @param {Object} props
+ * @param {Array<{category: string, value: number, color: string}>} props.data - Chart data
+ * @param {string} [props.title] - Optional heading rendered above the chart
+ * @param {string} [props.ariaLabel] - Accessible label override for the chart image role
+ * @returns {JSX.Element} The rendered bar chart with accessible table
  */
-function EmissionsBarChart({ data, title, ariaLabel }) {
+function EmissionsBarChart({ data, title = undefined, ariaLabel = undefined }) {
   const label = ariaLabel ?? `Bar chart: ${title ?? 'Emissions by category'}`;
 
   return (
@@ -88,5 +90,7 @@ EmissionsBarChart.propTypes = {
   title: PropTypes.string,
   ariaLabel: PropTypes.string,
 };
+
+EmissionsBarChart.displayName = 'EmissionsBarChart';
 
 export default React.memo(EmissionsBarChart);

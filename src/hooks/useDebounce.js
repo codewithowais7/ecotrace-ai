@@ -1,11 +1,10 @@
 /**
- * Custom hook that debounces a value, delaying updates until the
- * specified number of milliseconds have elapsed without a new value.
- * Useful for deferring expensive operations (e.g. API calls, filtering)
- * until the user pauses typing.
+ * @fileoverview Custom hook that debounces a value to defer expensive operations.
+ * @module hooks/useDebounce
  */
 
 import { useState, useEffect } from 'react';
+import { APP_CONSTANTS } from '../constants/categories';
 
 /**
  * Returns a debounced copy of `value` that only updates after `delay` ms
@@ -20,7 +19,7 @@ import { useState, useEffect } from 'react';
  * const debouncedSearch = useDebounce(searchTerm, 400);
  * useEffect(() => { fetchResults(debouncedSearch); }, [debouncedSearch]);
  */
-export function useDebounce(value, delay = 300) {
+export function useDebounce(value, delay = APP_CONSTANTS.DEBOUNCE_DELAY_MS) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {

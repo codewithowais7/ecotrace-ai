@@ -1,8 +1,12 @@
 /**
- * Global application context for EcoTrace AI.
- * Manages activities, user profile, onboarding state, and AI insights.
- * All state is persisted to localStorage and restored on mount.
+ * @fileoverview Global application context managing activities, user profile, and AI insights.
+ * @module context/AppContext
  */
+
+/** @typedef {import('../utils/types').Activity} Activity */
+/** @typedef {import('../utils/types').EmissionStats} EmissionStats */
+/** @typedef {import('../utils/types').EmissionLevel} EmissionLevel */
+/** @typedef {import('../utils/types').UserProfile} UserProfile */
 
 import React, {
   createContext,

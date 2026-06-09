@@ -1,6 +1,6 @@
 /**
- * Activity logging form — validates, sanitizes, and logs a new emission activity.
- * Announces success/failure to screen readers via the useAccessibility hook.
+ * @fileoverview Activity logging form with validation, sanitization, and screen-reader announcements.
+ * @module components/forms/ActivityForm
  */
 
 import { useState } from 'react';
@@ -86,10 +86,13 @@ const CATEGORY_OPTIONS = ACTIVITY_CATEGORIES.map((c) => ({
 
 /**
  * Form for logging a new carbon emission activity.
+ * On successful submission, resets state and calls the optional onSuccess callback.
  *
- * @param {{ onSuccess?: () => void }} props
+ * @param {Object} props
+ * @param {Function} [props.onSuccess] - Optional callback invoked with the logged Activity on success
+ * @returns {JSX.Element} The rendered activity logging form
  */
-export default function ActivityForm({ onSuccess }) {
+export default function ActivityForm({ onSuccess = undefined }) {
   const { logActivity } = useCalculator();
   const { announceToScreenReader } = useAccessibility();
 
@@ -226,3 +229,7 @@ export default function ActivityForm({ onSuccess }) {
 ActivityForm.propTypes = {
   onSuccess: PropTypes.func,
 };
+
+ActivityForm.displayName = 'ActivityForm';
+
+

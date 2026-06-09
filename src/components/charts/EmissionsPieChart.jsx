@@ -1,6 +1,6 @@
 /**
- * Pie / donut chart visualising CO2e emissions breakdown.
- * Includes a text legend (color + label) and an sr-only table fallback.
+ * @fileoverview Pie/donut chart visualising CO2e emission breakdown with a text legend and table fallback.
+ * @module components/charts/EmissionsPieChart
  */
 
 import React from 'react';
@@ -40,13 +40,15 @@ renderLegend.propTypes = {
 };
 
 /**
- * @param {{
- *   data: Array<{ category: string, value: number, color: string }>,
- *   title?: string,
- *   ariaLabel?: string
- * }} props
+ * Donut chart displaying CO2e emissions breakdown per category with legend and sr-only table.
+ *
+ * @param {Object} props
+ * @param {Array<{category: string, value: number, color: string}>} props.data - Chart data
+ * @param {string} [props.title] - Optional heading rendered above the chart
+ * @param {string} [props.ariaLabel] - Accessible label override for the chart image role
+ * @returns {JSX.Element} The rendered pie chart with accessible table
  */
-function EmissionsPieChart({ data, title, ariaLabel }) {
+function EmissionsPieChart({ data, title = undefined, ariaLabel = undefined }) {
   const label = ariaLabel ?? `Pie chart: ${title ?? 'Emissions breakdown'}`;
 
   return (
@@ -110,5 +112,7 @@ EmissionsPieChart.propTypes = {
   title: PropTypes.string,
   ariaLabel: PropTypes.string,
 };
+
+EmissionsPieChart.displayName = 'EmissionsPieChart';
 
 export default React.memo(EmissionsPieChart);

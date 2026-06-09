@@ -1,6 +1,6 @@
 /**
- * Root application component.
- * Sets up providers, routing, lazy-loaded feature pages, and protected routes.
+ * @fileoverview Root application component with providers, routing, and lazy-loaded feature pages.
+ * @module App
  */
 
 import { lazy, Suspense, useContext } from 'react';
@@ -23,6 +23,11 @@ const CalculatorPage = lazy(() => import('./features/calculator/CalculatorPage')
 
 // ─── Suspense fallback ────────────────────────────────────────────────────────
 
+/**
+ * Full-screen loading spinner rendered during route code-split chunk loads.
+ *
+ * @returns {JSX.Element} The rendered page-level loading indicator
+ */
 function PageLoader() {
   return (
     <div className="flex-1 flex items-center justify-center">
@@ -36,7 +41,9 @@ function PageLoader() {
 /**
  * Redirects unauthenticated users (onboarding not complete) to the home page.
  *
- * @param {{ children: React.ReactNode }} props
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Content rendered when the user is authenticated
+ * @returns {JSX.Element} Children or a redirect to the onboarding page
  */
 function ProtectedRoute({ children }) {
   const { onboardingComplete } = useContext(AppContext);
@@ -49,6 +56,12 @@ ProtectedRoute.propTypes = {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
+/**
+ * Root application component. Sets up global providers, routing, lazy-loaded feature pages,
+ * and protected routes requiring completed onboarding.
+ *
+ * @returns {JSX.Element} The fully-composed application tree
+ */
 export default function App() {
   return (
     <ErrorBoundary>
@@ -99,3 +112,8 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
+PageLoader.displayName = 'PageLoader';
+ProtectedRoute.displayName = 'ProtectedRoute';
+App.displayName = 'App';
+

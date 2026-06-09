@@ -1,8 +1,14 @@
 /**
- * Emission factors in kg CO2e per unit.
- * Sources: IPCC AR6, EPA, Central Electricity Authority (CEA) India 2023.
+ * @fileoverview Emission factors mapping categories and types to their CO2e factors.
+ * @module constants/emissionFactors
  */
 
+/**
+ * Emission factors in kg CO2e per unit.
+ * Sources: IPCC AR6, EPA, Central Electricity Authority (CEA) India 2023.
+ *
+ * @type {Object.<string, Object.<string, number>>}
+ */
 export const EMISSION_FACTORS = {
   TRANSPORT: {
     car_petrol: 0.21, // kg CO2e per km
@@ -48,6 +54,8 @@ export const EMISSION_FACTORS = {
 
 /**
  * Metadata about the emission factor data sources.
+ *
+ * @type {{ source: string, year: number }}
  */
 export const SOURCE_INFO = {
   source: 'IPCC AR6, EPA, CEA India 2023',

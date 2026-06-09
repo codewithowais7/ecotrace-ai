@@ -1,37 +1,39 @@
 /**
- * Accessible labeled select (dropdown) component.
- * Mirrors the Input component accessibility pattern.
+ * @fileoverview Accessible labeled select dropdown component mirroring Input accessibility patterns.
+ * @module components/ui/Select
  */
 
 import PropTypes from 'prop-types';
 
 /**
- * @param {{
- *   id: string,
- *   name: string,
- *   label: string,
- *   value?: string,
- *   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void,
- *   options: Array<{ value: string, label: string }>,
- *   error?: string,
- *   hint?: string,
- *   required?: boolean,
- *   placeholder?: string,
- *   className?: string
- * }} props
+ * Accessible labeled dropdown with associated error and hint text for screen readers.
+ *
+ * @param {Object} props
+ * @param {string} props.id - Unique element id (used for label association)
+ * @param {string} props.name - Select name attribute
+ * @param {string} props.label - Visible label text
+ * @param {string} [props.value] - Controlled selected value
+ * @param {Function} [props.onChange] - Change handler
+ * @param {Array<{value: string, label: string}>} props.options - Options to render
+ * @param {string} [props.error] - Validation error message
+ * @param {string} [props.hint] - Hint text shown below the label
+ * @param {boolean} [props.required=false] - Marks the field as required
+ * @param {string} [props.placeholder] - Disabled placeholder option text
+ * @param {string} [props.className] - Additional wrapper class names
+ * @returns {JSX.Element} The rendered select field with label
  */
 export default function Select({
   id,
   name,
   label,
-  value,
-  onChange,
+  value = undefined,
+  onChange = undefined,
   options,
-  error,
-  hint,
-  required,
-  placeholder,
-  className,
+  error = undefined,
+  hint = undefined,
+  required = false,
+  placeholder = undefined,
+  className = undefined,
 }) {
   const hintId = hint ? `${id}-hint` : undefined;
   const errorId = error ? `${id}-error` : undefined;
@@ -114,3 +116,5 @@ Select.propTypes = {
   placeholder: PropTypes.string,
   className: PropTypes.string,
 };
+
+Select.displayName = 'Select';

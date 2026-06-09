@@ -1,6 +1,6 @@
 /**
- * Accessible modal dialog with focus trap, Escape key dismissal,
- * backdrop click close, and scroll lock while open.
+ * @fileoverview Accessible modal dialog with focus trap, Escape dismissal, and scroll lock.
+ * @module components/ui/Modal
  */
 
 import { useEffect, useRef } from 'react';
@@ -18,12 +18,15 @@ const FOCUSABLE_SELECTORS = [
 const TITLE_ID = 'modal-title';
 
 /**
- * @param {{
- *   isOpen: boolean,
- *   onClose: () => void,
- *   title: string,
- *   children: React.ReactNode
- * }} props
+ * Accessible modal dialog with focus trapping, Escape key dismissal,
+ * backdrop click-to-close, and body scroll locking.
+ *
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Controls modal visibility
+ * @param {Function} props.onClose - Called when the modal should close
+ * @param {string} props.title - Accessible title text (rendered in h2)
+ * @param {React.ReactNode} props.children - Modal body content
+ * @returns {JSX.Element | null} The rendered modal or null when closed
  */
 export default function Modal({ isOpen, onClose, title, children }) {
   const contentRef = useRef(null);
@@ -132,3 +135,5 @@ Modal.propTypes = {
   title: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
 };
+
+Modal.displayName = 'Modal';

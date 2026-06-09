@@ -1,16 +1,19 @@
 /**
- * Generic surface card component — polymorphic via the `as` prop.
+ * @fileoverview Generic polymorphic surface card component with customizable element type.
+ * @module components/ui/Card
  */
 
 import PropTypes from 'prop-types';
 
 /**
- * @param {{
- *   children: React.ReactNode,
- *   className?: string,
- *   as?: 'div'|'section'|'article',
- *   ariaLabel?: string
- * }} props
+ * A styled surface card that renders as any block element via the `as` prop.
+ *
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Card content
+ * @param {string} [props.className] - Additional CSS class names
+ * @param {'div'|'section'|'article'} [props.as='div'] - HTML element to render as
+ * @param {string} [props.ariaLabel] - Accessible label for landmark semantics
+ * @returns {JSX.Element} The rendered card element
  */
 export default function Card({ children, className, as: Tag = 'div', ariaLabel }) {
   return (
@@ -29,3 +32,5 @@ Card.propTypes = {
   as: PropTypes.oneOf(['div', 'section', 'article']),
   ariaLabel: PropTypes.string,
 };
+
+Card.displayName = 'Card';

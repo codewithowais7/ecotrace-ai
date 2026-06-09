@@ -1,6 +1,6 @@
 /**
- * Security utilities for EcoTrace AI.
- * Provides rate limiting and environment variable validation helpers.
+ * @fileoverview Security utilities providing rate limiting and environment variable validation.
+ * @module utils/security
  */
 
 /**
@@ -43,8 +43,10 @@ export function validateEnvVar(varName) {
 }
 
 /**
- * Check if all required environment variables are configured
- * Logs warnings for missing vars — never exposes values
+ * Checks if all required environment variables are configured.
+ * Logs warnings for missing vars — never exposes values.
+ *
+ * @returns {boolean} `true` if all required vars are configured, `false` otherwise.
  */
 export function checkRequiredEnvVars() {
   const required = ['VITE_GEMINI_API_KEY'];

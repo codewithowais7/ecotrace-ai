@@ -1,5 +1,6 @@
 /**
- * Loading spinner with accessible status role and screen-reader text.
+ * @fileoverview Loading spinner component with accessible status role and screen-reader text.
+ * @module components/ui/LoadingSpinner
  */
 
 import PropTypes from 'prop-types';
@@ -11,10 +12,12 @@ const sizeMap = {
 };
 
 /**
- * @param {{
- *   message?: string,
- *   size?: 'sm'|'md'|'lg'
- * }} props
+ * An animated spinner with a visually hidden status message for screen readers.
+ *
+ * @param {Object} props
+ * @param {string} [props.message='Loading...'] - Text read aloud by screen readers
+ * @param {'sm'|'md'|'lg'} [props.size='md'] - Visual size of the spinner
+ * @returns {JSX.Element} The rendered spinner with accessible status
  */
 export default function LoadingSpinner({ message = 'Loading...', size = 'md' }) {
   return (
@@ -40,3 +43,6 @@ LoadingSpinner.propTypes = {
   message: PropTypes.string,
   size: PropTypes.oneOf(['sm', 'md', 'lg']),
 };
+
+LoadingSpinner.displayName = 'LoadingSpinner';
+

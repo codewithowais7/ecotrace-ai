@@ -1,5 +1,6 @@
 /**
- * Calculator page — standalone emission calculator with live result display.
+ * @fileoverview Standalone calculator page with live emission result display after logging.
+ * @module features/calculator/CalculatorPage
  */
 
 import { useState } from 'react';
@@ -10,6 +11,12 @@ import { formatEmissions } from '../../utils/calculator';
 import Card from '../../components/ui/Card';
 import ActivityForm from '../../components/forms/ActivityForm';
 
+/**
+ * Calculator page providing a standalone emission entry form and showing
+ * the last logged activity's emissions relative to the India daily average.
+ *
+ * @returns {JSX.Element} The rendered calculator page
+ */
 export default function CalculatorPage() {
   const [lastResult, setLastResult] = useState(null);
 
@@ -86,3 +93,6 @@ export default function CalculatorPage() {
     </main>
   );
 }
+
+CalculatorPage.displayName = 'CalculatorPage';
+

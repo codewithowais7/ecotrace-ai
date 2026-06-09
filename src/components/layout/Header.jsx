@@ -1,6 +1,6 @@
 /**
- * Application header — sticky banner landmark with branding and main navigation.
- * Navigation is only rendered after onboarding is complete.
+ * @fileoverview Sticky application header with conditional navigation after onboarding.
+ * @module components/layout/Header
  */
 
 import { useContext } from 'react';
@@ -14,8 +14,10 @@ const NAV_LINKS = [
 ];
 
 /**
- * Sticky application header with conditional navigation.
- * Shows navigation links only once onboarding is complete.
+ * Sticky application header with branding link and conditional navigation links.
+ * Navigation is rendered only after the user completes onboarding.
+ *
+ * @returns {JSX.Element} The rendered header element
  */
 export default function Header() {
   const { onboardingComplete } = useContext(AppContext);
@@ -67,3 +69,6 @@ export default function Header() {
     </header>
   );
 }
+
+Header.displayName = 'Header';
+

@@ -1,7 +1,13 @@
 /**
- * Application footer — contentinfo landmark with attribution and data sources.
+ * @fileoverview Application footer with attribution, data source citation, and copyright.
+ * @module components/layout/Footer
  */
 
+/**
+ * Sticky application footer with attribution and emission data source references.
+ *
+ * @returns {JSX.Element} The rendered footer element
+ */
 export default function Footer() {
   return (
     <footer
@@ -16,3 +22,6 @@ export default function Footer() {
     </footer>
   );
 }
+
+Footer.displayName = 'Footer';
+

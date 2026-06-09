@@ -1,6 +1,6 @@
 /**
- * Custom hook providing accessibility helpers for EcoTrace AI.
- * Currently exposes a screen-reader announcement utility via an ARIA live region.
+ * @fileoverview Custom hook providing ARIA live region announcement utilities.
+ * @module hooks/useAccessibility
  */
 
 /**

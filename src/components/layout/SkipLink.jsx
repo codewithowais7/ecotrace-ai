@@ -1,8 +1,14 @@
 /**
- * Skip navigation link — first focusable element on every page.
- * Visible only on keyboard focus for screen reader / keyboard-only users.
+ * @fileoverview Skip navigation link — first focusable element on each page for keyboard users.
+ * @module components/layout/SkipLink
  */
 
+/**
+ * A "Skip to main content" anchor that becomes visible on keyboard focus.
+ * Always rendered as the first focusable element so keyboard users can bypass navigation.
+ *
+ * @returns {JSX.Element} The rendered skip link anchor
+ */
 export default function SkipLink() {
   return (
     <a
@@ -13,3 +19,6 @@ export default function SkipLink() {
     </a>
   );
 }
+
+SkipLink.displayName = 'SkipLink';
+

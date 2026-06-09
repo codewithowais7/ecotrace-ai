@@ -1,5 +1,6 @@
 /**
- * Insights page — generates personalised AI tips via Gemini and displays static quick wins.
+ * @fileoverview AI Insights page generating personalised carbon reduction tips via Gemini.
+ * @module features/insights/InsightsPage
  */
 
 import { useContext } from 'react';
@@ -63,6 +64,11 @@ const QUICK_WINS = [
   },
 ];
 
+/**
+ * Insights page displaying AI-generated carbon reduction tips and curated quick-win suggestions.
+ *
+ * @returns {JSX.Element} The rendered insights page
+ */
 export default function InsightsPage() {
   const { dailyStats, emissionLevel, insights, setInsights } = useContext(AppContext);
   const { loading, error, generateTips } = useGemini();
@@ -172,3 +178,6 @@ export default function InsightsPage() {
     </main>
   );
 }
+
+InsightsPage.displayName = 'InsightsPage';
+

@@ -1,7 +1,11 @@
 /**
- * Custom hook that provides a validated, sanitized activity logging interface
- * backed by the global AppContext and calculator utilities.
+ * @fileoverview Custom hook providing validated, sanitized activity logging backed by AppContext.
+ * @module hooks/useCalculator
  */
+
+/** @typedef {import('../utils/types').Activity} Activity */
+/** @typedef {import('../utils/types').EmissionStats} EmissionStats */
+/** @typedef {import('../utils/types').EmissionLevel} EmissionLevel */
 
 import { useContext } from 'react';
 

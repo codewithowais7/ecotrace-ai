@@ -1,27 +1,52 @@
 /**
- * Error boundary — catches render-tree errors and shows a friendly recovery UI.
- * Must be a class component because React error boundaries require lifecycle methods.
+ * @fileoverview React error boundary catching render-tree errors with a friendly recovery UI.
+ * @module components/ErrorBoundary
  */
 
 import React from 'react';
 import PropTypes from 'prop-types';
 
+/**
+ * React error boundary component that catches JavaScript errors anywhere in its child component tree,
+ * logs those errors, and displays a fallback UI instead of crashing the application.
+ */
 export default class ErrorBoundary extends React.Component {
+  /**
+   * Initializes the error boundary component state.
+   *
+   * @param {Object} props
+   */
   constructor(props) {
     super(props);
     this.state = { hasError: false };
   }
 
+  /**
+   * Derives error state from an uncaught render-tree exception.
+   *
+   * @returns {{ hasError: boolean }} State update mapping
+   */
   static getDerivedStateFromError() {
     return { hasError: true };
   }
 
+  /**
+   * Invoked after an error has been thrown by a descendant component.
+   *
+   * @param {Error} error - The error that was thrown
+   * @param {React.ErrorInfo} info - An object containing info about the component stack
+   */
   componentDidCatch(error, info) {
     // Log to console only — never expose raw error details in the UI
     // eslint-disable-next-line no-console
     console.error('[ErrorBoundary] Uncaught error:', error, info);
   }
 
+  /**
+   * Renders fallback UI if an error is caught, otherwise renders children.
+   *
+   * @returns {React.ReactNode}
+   */
   render() {
     if (this.state.hasError) {
       return (
@@ -53,3 +78,6 @@ export default class ErrorBoundary extends React.Component {
 ErrorBoundary.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
+ErrorBoundary.displayName = 'ErrorBoundary';
+

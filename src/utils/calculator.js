@@ -1,7 +1,11 @@
 /**
- * Carbon emissions calculator utilities for EcoTrace AI.
- * All calculations use IPCC AR6 / EPA / CEA India 2023 emission factors.
+ * @fileoverview CO2e emission calculation utilities using IPCC AR6 and EPA emission factors.
+ * @module utils/calculator
  */
+
+// Type imports (JSDoc only — no runtime cost)
+/** @typedef {import('./types').Activity} Activity */
+/** @typedef {import('./types').EmissionStats} EmissionStats */
 
 import { EMISSION_FACTORS } from '../constants/emissionFactors';
 import { EMISSION_LEVEL_CONFIG } from '../constants/categories';
@@ -82,9 +86,8 @@ export function calculateShoppingEmissions(itemType, quantity) {
  * Calculates total CO2e emissions from an array of activity records,
  * returning both the overall total and a per-category breakdown.
  *
- * @param {Array<{ category: string, activityType: string, quantity: number }>} activities
- *   Array of activity objects. Unknown categories contribute 0 to the total.
- * @returns {{ total: number, breakdown: { transport: number, food: number, energy: number, shopping: number } }}
+ * @param {Activity[]} activities - Array of activity objects. Unknown categories contribute 0 to the total.
+ * @returns {EmissionStats} Total emissions and per-category breakdown in kg CO2e.
  */
 export function calculateTotalEmissions(activities) {
   const breakdown = { transport: 0, food: 0, energy: 0, shopping: 0 };

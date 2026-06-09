@@ -1,37 +1,39 @@
 /**
- * Accessible labeled text / number input component.
- * Always associates a <label> via htmlFor — never relies on aria-label alone.
+ * @fileoverview Accessible labeled text/number input component with ARIA error support.
+ * @module components/ui/Input
  */
 
 import PropTypes from 'prop-types';
 
 /**
- * @param {{
- *   id: string,
- *   name: string,
- *   label: string,
- *   type?: string,
- *   value?: string|number,
- *   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void,
- *   error?: string,
- *   hint?: string,
- *   required?: boolean,
- *   placeholder?: string,
- *   className?: string
- * }} props
+ * Accessible labeled input with associated error and hint text for screen readers.
+ *
+ * @param {Object} props
+ * @param {string} props.id - Unique element id (used for label association)
+ * @param {string} props.name - Input name attribute
+ * @param {string} props.label - Visible label text
+ * @param {string} [props.type='text'] - HTML input type
+ * @param {string|number} [props.value] - Controlled value
+ * @param {Function} [props.onChange] - Change handler
+ * @param {string} [props.error] - Validation error message
+ * @param {string} [props.hint] - Hint text shown below the label
+ * @param {boolean} [props.required=false] - Marks the field as required
+ * @param {string} [props.placeholder] - Placeholder text
+ * @param {string} [props.className] - Additional wrapper class names
+ * @returns {JSX.Element} The rendered input field with label
  */
 export default function Input({
   id,
   name,
   label,
-  type,
-  value,
-  onChange,
-  error,
-  hint,
-  required,
-  placeholder,
-  className,
+  type = 'text',
+  value = undefined,
+  onChange = undefined,
+  error = undefined,
+  hint = undefined,
+  required = false,
+  placeholder = undefined,
+  className = undefined,
 }) {
   const hintId = hint ? `${id}-hint` : undefined;
   const errorId = error ? `${id}-error` : undefined;
@@ -60,7 +62,7 @@ export default function Input({
       <input
         id={id}
         name={name}
-        type={type ?? 'text'}
+        type={type}
         value={value}
         onChange={onChange}
         required={required}
@@ -99,3 +101,5 @@ Input.propTypes = {
   placeholder: PropTypes.string,
   className: PropTypes.string,
 };
+
+Input.displayName = 'Input';

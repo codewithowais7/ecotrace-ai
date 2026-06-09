@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Application entry point \u2014 mounts the React app and runs environment checks.
+ * @module main
+ */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';

@@ -1,5 +1,6 @@
 /**
- * Dashboard — shows today's emission summary, charts, activity log form, and activity list.
+ * @fileoverview Dashboard page showing today's emission summary, charts, activity form, and log.
+ * @module features/dashboard/DashboardPage
  */
 
 import { useContext, useMemo } from 'react';
@@ -15,6 +16,12 @@ import ActivityForm from '../../components/forms/ActivityForm';
 import EmissionsBarChart from '../../components/charts/EmissionsBarChart';
 import EmissionsPieChart from '../../components/charts/EmissionsPieChart';
 
+/**
+ * Dashboard page displaying the user's daily emission summary, bar/pie charts,
+ * the activity log form, and the scrollable activity list.
+ *
+ * @returns {JSX.Element} The rendered dashboard page
+ */
 export default function DashboardPage() {
   const { userProfile, emissionLevel, goalProgress, dailyStats } = useContext(AppContext);
   const { activities, removeActivity } = useCalculator();
@@ -150,3 +157,6 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+DashboardPage.displayName = 'DashboardPage';
+

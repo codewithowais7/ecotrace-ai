@@ -1,5 +1,6 @@
 /**
- * Category and configuration constants for EcoTrace AI.
+ * @fileoverview Category, emission level, and application-wide configuration constants.
+ * @module constants/categories
  */
 
 /**
@@ -91,4 +92,12 @@ export const APP_CONSTANTS = {
   GEMINI_RATE_LIMIT_MS: 3000,
   /** Maximum characters sent in a single Gemini prompt */
   MAX_PROMPT_CHARS: 800,
+  /** Default debounce delay for input handlers (ms) */
+  DEBOUNCE_DELAY_MS: 300,
+  /** Maximum characters allowed in a sanitized AI response */
+  MAX_API_RESPONSE_CHARS: 2000,
+  /** Maximum goal percentage displayed before capping (%) */
+  GOAL_OVERRUN_CAP_PERCENT: 200,
+  /** Delay before screen-reader live region announcement fires (ms) */
+  ANIMATION_DELAY_MS: 100,
 };

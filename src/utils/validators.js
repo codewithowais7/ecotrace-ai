@@ -1,6 +1,6 @@
 /**
- * Input validation utilities for EcoTrace AI.
- * All functions are pure and return structured result objects.
+ * @fileoverview Input validation utilities returning structured result objects with error messages.
+ * @module utils/validators
  */
 
 /**
