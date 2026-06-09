@@ -1,18 +1,20 @@
 /**
- * localStorage utilities with error handling
+ * Safe localStorage wrapper for EcoTrace AI.
+ * All functions handle missing/unavailable storage gracefully via try/catch.
  */
-
-const PREFIX = 'ecotrace_';
 
 /**
- * Get a value from localStorage (parsed from JSON)
- * @param {string} key
- * @param {*} defaultValue
- * @returns {*}
+ * Safely retrieves and JSON-parses an item from localStorage.
+ * Returns the default value if the key is absent, parsing fails, or
+ * localStorage is unavailable.
+ *
+ * @param {string} key - The localStorage key to read.
+ * @param {*} [defaultValue=null] - Value to return when the key is not found.
+ * @returns {*} The parsed value, or `defaultValue`.
  */
-export function getItem(key, defaultValue = null) {
+export function getStorageItem(key, defaultValue = null) {
   try {
-    const raw = localStorage.getItem(PREFIX + key);
+    const raw = localStorage.getItem(key);
     if (raw === null) return defaultValue;
     return JSON.parse(raw);
   } catch {
@@ -21,14 +23,16 @@ export function getItem(key, defaultValue = null) {
 }
 
 /**
- * Set a value in localStorage (serialized as JSON)
- * @param {string} key
- * @param {*} value
- * @returns {boolean} success
+ * Safely serialises a value to JSON and writes it to localStorage.
+ * Silently swaps to a no-op if localStorage is unavailable or quota is exceeded.
+ *
+ * @param {string} key - The localStorage key to write.
+ * @param {*} value - Any JSON-serialisable value.
+ * @returns {boolean} `true` on success, `false` on failure.
  */
-export function setItem(key, value) {
+export function setStorageItem(key, value) {
   try {
-    localStorage.setItem(PREFIX + key, JSON.stringify(value));
+    localStorage.setItem(key, JSON.stringify(value));
     return true;
   } catch {
     return false;
@@ -36,41 +40,29 @@ export function setItem(key, value) {
 }
 
 /**
- * Remove an item from localStorage
- * @param {string} key
+ * Safely removes a single item from localStorage.
+ *
+ * @param {string} key - The localStorage key to remove.
+ * @returns {void}
  */
-export function removeItem(key) {
+export function removeStorageItem(key) {
   try {
-    localStorage.removeItem(PREFIX + key);
+    localStorage.removeItem(key);
   } catch {
-    // ignore
+    // Storage unavailable — silently ignore
   }
 }
 
 /**
- * Clear all EcoTrace entries from localStorage
+ * Clears all entries from localStorage.
+ * Use with care — this removes all keys, not just EcoTrace ones.
+ *
+ * @returns {void}
  */
-export function clearAll() {
+export function clearStorage() {
   try {
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith(PREFIX))
-      .forEach((k) => localStorage.removeItem(k));
+    localStorage.clear();
   } catch {
-    // ignore
-  }
-}
-
-/**
- * Check if localStorage is available
- * @returns {boolean}
- */
-export function isStorageAvailable() {
-  try {
-    const test = '__ecotrace_test__';
-    localStorage.setItem(test, '1');
-    localStorage.removeItem(test);
-    return true;
-  } catch {
-    return false;
+    // Storage unavailable — silently ignore
   }
 }

@@ -1,103 +1,94 @@
 /**
- * Emission categories configuration for UI rendering and grouping
+ * Category and configuration constants for EcoTrace AI.
  */
 
-export const CATEGORIES = {
-  transport: {
+/**
+ * Ordered list of emission activity categories displayed in the UI.
+ * @type {Array<{ id: string, label: string, icon: string, color: string, description: string }>}
+ */
+export const ACTIVITY_CATEGORIES = [
+  {
     id: 'transport',
     label: 'Transport',
     icon: '🚗',
     color: '#3b82f6',
-    description: 'Flights, driving, public transit',
-    subcategories: [
-      { id: 'car_petrol', label: 'Petrol Car', unit: 'km' },
-      { id: 'car_diesel', label: 'Diesel Car', unit: 'km' },
-      { id: 'car_electric', label: 'Electric Car', unit: 'km' },
-      { id: 'car_hybrid', label: 'Hybrid Car', unit: 'km' },
-      { id: 'motorcycle', label: 'Motorcycle', unit: 'km' },
-      { id: 'bus', label: 'Bus', unit: 'km' },
-      { id: 'train', label: 'Train', unit: 'km' },
-      { id: 'subway', label: 'Subway / Metro', unit: 'km' },
-      { id: 'flight_short', label: 'Short-haul Flight', unit: 'km' },
-      { id: 'flight_long', label: 'Long-haul Flight', unit: 'km' },
-      { id: 'flight_business', label: 'Business Class Flight', unit: 'km' },
-      { id: 'walking', label: 'Walking', unit: 'km' },
-      { id: 'cycling', label: 'Cycling', unit: 'km' },
-    ],
+    description: 'Daily travel by any mode',
   },
-  energy: {
+  {
+    id: 'food',
+    label: 'Food & Diet',
+    icon: '🍽️',
+    color: '#f59e0b',
+    description: 'Meals and food purchases',
+  },
+  {
     id: 'energy',
     label: 'Home Energy',
     icon: '⚡',
-    color: '#f59e0b',
-    description: 'Electricity, heating, cooling',
-    subcategories: [
-      { id: 'electricity_grid', label: 'Grid Electricity', unit: 'kWh' },
-      { id: 'electricity_renewable', label: 'Renewable Electricity', unit: 'kWh' },
-      { id: 'natural_gas', label: 'Natural Gas', unit: 'm³' },
-      { id: 'heating_oil', label: 'Heating Oil', unit: 'litres' },
-      { id: 'lpg', label: 'LPG', unit: 'litres' },
-      { id: 'wood_pellets', label: 'Wood Pellets', unit: 'kWh' },
-    ],
+    color: '#ef4444',
+    description: 'Electricity, gas, LPG usage',
   },
-  food: {
-    id: 'food',
-    label: 'Food & Diet',
-    icon: '🥦',
-    color: '#22c55e',
-    description: 'What you eat and drink',
-    subcategories: [
-      { id: 'beef', label: 'Beef', unit: 'kg' },
-      { id: 'lamb', label: 'Lamb', unit: 'kg' },
-      { id: 'pork', label: 'Pork', unit: 'kg' },
-      { id: 'poultry', label: 'Poultry', unit: 'kg' },
-      { id: 'fish', label: 'Fish & Seafood', unit: 'kg' },
-      { id: 'dairy', label: 'Dairy', unit: 'kg' },
-      { id: 'eggs', label: 'Eggs', unit: 'kg' },
-      { id: 'rice', label: 'Rice', unit: 'kg' },
-      { id: 'vegetables', label: 'Vegetables', unit: 'kg' },
-      { id: 'fruits', label: 'Fruits', unit: 'kg' },
-      { id: 'legumes', label: 'Legumes & Pulses', unit: 'kg' },
-    ],
-  },
-  shopping: {
+  {
     id: 'shopping',
     label: 'Shopping',
     icon: '🛍️',
-    color: '#a855f7',
-    description: 'Consumer goods & services',
-    subcategories: [
-      { id: 'clothing_new', label: 'New Clothing', unit: 'items' },
-      { id: 'electronics_phone', label: 'Smartphone', unit: 'units' },
-      { id: 'electronics_laptop', label: 'Laptop / Tablet', unit: 'units' },
-      { id: 'electronics_tv', label: 'Television', unit: 'units' },
-      { id: 'furniture', label: 'Furniture', unit: 'items' },
-      { id: 'books', label: 'Books', unit: 'items' },
-      { id: 'streaming_hour', label: 'Video Streaming', unit: 'hours' },
-    ],
+    color: '#8b5cf6',
+    description: 'Clothing, electronics, furniture',
   },
-  waste: {
-    id: 'waste',
-    label: 'Waste',
-    icon: '♻️',
+];
+
+/**
+ * Emission level thresholds and display configuration.
+ * `max` is the upper bound (exclusive) in kg CO2e for that band.
+ * @type {Object.<string, { label: string, max: number, color: string, textColor: string, bgColor: string }>}
+ */
+export const EMISSION_LEVEL_CONFIG = {
+  low: {
+    label: 'Low',
+    max: 5,
+    color: '#22c55e',
+    textColor: 'text-green-400',
+    bgColor: 'bg-green-900/30',
+  },
+  medium: {
+    label: 'Medium',
+    max: 15,
+    color: '#f59e0b',
+    textColor: 'text-yellow-400',
+    bgColor: 'bg-yellow-900/30',
+  },
+  high: {
+    label: 'High',
+    max: 30,
+    color: '#f97316',
+    textColor: 'text-orange-400',
+    bgColor: 'bg-orange-900/30',
+  },
+  'very-high': {
+    label: 'Very High',
+    max: Infinity,
     color: '#ef4444',
-    description: 'Trash, recycling, composting',
-    subcategories: [
-      { id: 'landfill_kg', label: 'Landfill Waste', unit: 'kg' },
-      { id: 'recycled_kg', label: 'Recycled Waste', unit: 'kg' },
-      { id: 'composted_kg', label: 'Composted Waste', unit: 'kg' },
-    ],
+    textColor: 'text-red-400',
+    bgColor: 'bg-red-900/30',
   },
 };
 
-export const CATEGORY_IDS = Object.keys(CATEGORIES);
-
-export const CATEGORY_COLORS = Object.fromEntries(
-  Object.entries(CATEGORIES).map(([id, cat]) => [id, cat.color])
-);
-
-/** Average global per-capita annual CO2 footprint in kg */
-export const GLOBAL_AVERAGE_KG = 4700;
-
-/** Paris Agreement target per-capita annual CO2 footprint in kg */
-export const PARIS_TARGET_KG = 2000;
+/**
+ * Global application-level constants.
+ */
+export const APP_CONSTANTS = {
+  APP_NAME: 'EcoTrace AI',
+  VERSION: '1.0.0',
+  /** Average daily per-capita footprint for India (kg CO2e) */
+  INDIA_AVERAGE_DAILY_KG: 13.4,
+  /** Average daily per-capita footprint globally (kg CO2e) */
+  GLOBAL_AVERAGE_DAILY_KG: 12.9,
+  /** Default daily carbon goal for new users (kg CO2e) */
+  DEFAULT_DAILY_GOAL_KG: 13.4,
+  /** Hard cap on activities tracked per day */
+  MAX_ACTIVITIES_PER_DAY: 50,
+  /** Minimum milliseconds between Gemini API calls (rate limiting) */
+  GEMINI_RATE_LIMIT_MS: 3000,
+  /** Maximum characters sent in a single Gemini prompt */
+  MAX_PROMPT_CHARS: 800,
+};

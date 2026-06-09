@@ -1,55 +1,43 @@
 /**
- * Security utilities for EcoTrace AI
+ * Security utilities for EcoTrace AI.
+ * Provides rate limiting and environment variable validation helpers.
  */
 
 /**
- * Rate limiter — tracks calls per key and returns false if limit exceeded
- * @param {string} key - Unique identifier for the rate-limited action
- * @param {number} maxCalls - Maximum calls allowed
- * @param {number} windowMs - Time window in milliseconds
- * @returns {boolean} true if call is allowed
+ * Checks whether a keyed action is permitted under a minimum-interval rate limit.
+ * The provided `store` Map is mutated to record the timestamp of each allowed call.
+ *
+ * @param {Map<string, number>} store - Shared Map that holds the last-allowed timestamp per key.
+ * @param {string} key - Identifier for the action being rate-limited (e.g. 'gemini_api').
+ * @param {number} limitMs - Minimum milliseconds that must elapse between allowed calls.
+ * @returns {boolean} `true` if the call is allowed (and the timestamp is recorded),
+ *                    `false` if the call is within the rate-limit window.
  */
-const rateLimitStore = new Map();
-
-export function checkRateLimit(key, maxCalls = 10, windowMs = 60_000) {
+export function checkRateLimit(store, key, limitMs) {
   const now = Date.now();
-  const record = rateLimitStore.get(key) || { calls: [], blocked: false };
+  const lastCall = store.get(key);
 
-  // Prune old calls outside window
-  record.calls = record.calls.filter((t) => now - t < windowMs);
-
-  if (record.calls.length >= maxCalls) {
-    rateLimitStore.set(key, record);
+  if (lastCall !== undefined && now - lastCall < limitMs) {
     return false;
   }
 
-  record.calls.push(now);
-  rateLimitStore.set(key, record);
+  store.set(key, now);
   return true;
 }
 
 /**
- * Reset rate limit state for a key (useful in tests)
- * @param {string} key
+ * Validates that a Vite environment variable exists and is non-empty.
+ * Emits a console warning (never the value itself) when the variable is missing.
+ *
+ * @param {string} varName - The environment variable name (e.g. 'VITE_GEMINI_API_KEY').
+ * @returns {boolean} `true` if the variable is present and non-empty, `false` otherwise.
  */
-export function resetRateLimit(key) {
-  rateLimitStore.delete(key);
-}
-
-/**
- * Mask sensitive data for logging (shows only last 4 chars)
- * @param {string} value
- * @returns {string}
- */
-export function maskSensitive(value) {
-  if (!value || value.length <= 4) return '****';
-  return '*'.repeat(value.length - 4) + value.slice(-4);
-}
-
-/**
- * Generate a simple unique ID (not cryptographically secure — use for UI keys only)
- * @returns {string}
- */
-export function generateId() {
-  return `ecotrace_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+export function validateEnvVar(varName) {
+  const value = import.meta.env[varName];
+  if (!value || String(value).trim() === '') {
+    // eslint-disable-next-line no-console
+    console.warn(`Missing env var: ${varName}`);
+    return false;
+  }
+  return true;
 }

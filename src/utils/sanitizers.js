@@ -1,50 +1,70 @@
+/**
+ * Input sanitization utilities for EcoTrace AI.
+ * All functions are pure and safe to call with any input type.
+ */
+
 import DOMPurify from 'dompurify';
 
 /**
- * Sanitize a string to prevent XSS — strips all HTML tags
- * @param {string} input
- * @returns {string}
+ * Sanitizes user text input by stripping all HTML, trimming whitespace,
+ * and enforcing a maximum character length.
+ *
+ * @param {string} text - Raw user input.
+ * @param {number} [maxLength=500] - Maximum length of the returned string.
+ * @returns {string} Sanitized, trimmed, length-capped plain text.
  */
-export function sanitizeText(input) {
-  if (typeof input !== 'string') return '';
-  return DOMPurify.sanitize(input, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
-}
-
-/**
- * Sanitize HTML content, allowing a safe subset of tags
- * @param {string} html
- * @returns {string}
- */
-export function sanitizeHtml(html) {
-  if (typeof html !== 'string') return '';
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'h3', 'h4'],
-    ALLOWED_ATTR: ['href', 'target', 'rel'],
-    FORCE_BODY: true,
-  });
-}
-
-/**
- * Sanitize AI-generated markdown-style response text
- * Allows basic formatting but strips dangerous content
- * @param {string} text
- * @returns {string}
- */
-export function sanitizeAiResponse(text) {
+export function sanitizeText(text, maxLength = 500) {
   if (typeof text !== 'string') return '';
-  // Strip script tags and event handlers before passing to DOMPurify
-  const cleaned = text.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-  return DOMPurify.sanitize(cleaned, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'h3', 'h4', 'code', 'pre'],
-    ALLOWED_ATTR: [],
-  });
+  const stripped = DOMPurify.sanitize(text, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+  return stripped.trim().slice(0, maxLength);
 }
 
 /**
- * Strip all HTML and return plain text
- * @param {string} html
- * @returns {string}
+ * Safely parses any value into a finite number.
+ * Returns 0 for invalid, NaN, Infinity, or non-numeric input.
+ *
+ * @param {any} value - Value to parse.
+ * @returns {number} Parsed finite number, or 0.
  */
-export function htmlToText(html) {
-  return sanitizeText(html);
+export function sanitizeNumber(value) {
+  const num = parseFloat(value);
+  if (isNaN(num) || !isFinite(num)) return 0;
+  return num;
+}
+
+/**
+ * Sanitizes an object of form data by applying sanitizeText to string
+ * values and sanitizeNumber to number values. Other types are passed through.
+ *
+ * @param {Object} data - Raw form data object.
+ * @returns {Object} Sanitized copy of the form data.
+ */
+export function sanitizeFormData(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return {};
+
+  return Object.fromEntries(
+    Object.entries(data).map(([key, value]) => {
+      if (typeof value === 'string') {
+        return [key, sanitizeText(value)];
+      }
+      if (typeof value === 'number') {
+        return [key, sanitizeNumber(value)];
+      }
+      return [key, value];
+    })
+  );
+}
+
+/**
+ * Sanitizes an AI API response by removing all HTML and script content,
+ * and capping the output to a maximum length to prevent oversized renders.
+ *
+ * @param {string} text - Raw response text from the AI API.
+ * @param {number} [maxLength=3000] - Maximum length of the returned string.
+ * @returns {string} Sanitized plain text response.
+ */
+export function sanitizeApiResponse(text, maxLength = 3000) {
+  if (typeof text !== 'string') return '';
+  const sanitized = DOMPurify.sanitize(text, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+  return sanitized.trim().slice(0, maxLength);
 }

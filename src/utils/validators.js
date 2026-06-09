@@ -1,75 +1,83 @@
 /**
- * Input validation utilities for EcoTrace AI
+ * Input validation utilities for EcoTrace AI.
+ * All functions are pure and return structured result objects.
  */
 
 /**
- * Validate a numeric quantity input
- * @param {*} value
- * @param {Object} options
- * @param {number} [options.min=0]
- * @param {number} [options.max=1000000]
- * @returns {{ valid: boolean, error?: string }}
+ * Validates a numeric input value against optional min/max bounds.
+ *
+ * @param {number|string} value - The raw input to validate.
+ * @param {number} [min=0] - Minimum allowed value (inclusive).
+ * @param {number} [max=10000] - Maximum allowed value (inclusive).
+ * @returns {{ valid: boolean, error: string | null }}
  */
-export function validateQuantity(value, { min = 0, max = 1_000_000 } = {}) {
-  const num = parseFloat(value);
+export function validateNumericInput(value, min = 0, max = 10000) {
   if (value === '' || value === null || value === undefined) {
-    return { valid: false, error: 'This field is required.' };
+    return { valid: false, error: 'This field is required' };
   }
+  const num = parseFloat(value);
   if (isNaN(num)) {
-    return { valid: false, error: 'Please enter a valid number.' };
+    return { valid: false, error: 'Must be a valid number' };
   }
   if (num < min) {
-    return { valid: false, error: `Value must be at least ${min}.` };
+    return { valid: false, error: `Must be at least ${min}` };
   }
   if (num > max) {
-    return { valid: false, error: `Value must be no more than ${max.toLocaleString()}.` };
+    return { valid: false, error: `Must be no more than ${max}` };
   }
-  return { valid: true };
+  return { valid: true, error: null };
 }
 
 /**
- * Validate an API key format (basic non-empty check)
- * @param {string} key
- * @returns {{ valid: boolean, error?: string }}
+ * Validates an activity form submission object.
+ * Checks that all required fields are present and quantity is positive.
+ *
+ * @param {Object} formData - The form data to validate.
+ * @param {string} formData.category - Emission category (e.g. 'transport').
+ * @param {string} formData.activityType - Specific activity key (e.g. 'car_petrol').
+ * @param {number|string} formData.quantity - Amount for the activity.
+ * @param {string} formData.unit - Unit of measurement (e.g. 'km').
+ * @returns {{ valid: boolean, errors: Object.<string, string> }}
  */
-export function validateApiKey(key) {
-  if (!key || typeof key !== 'string' || key.trim().length === 0) {
-    return { valid: false, error: 'API key cannot be empty.' };
+export function validateActivityForm(formData) {
+  const errors = {};
+
+  if (!formData.category || String(formData.category).trim() === '') {
+    errors.category = 'Please select a category';
   }
-  if (key.trim().length < 20) {
-    return { valid: false, error: 'API key appears to be too short.' };
+
+  if (!formData.activityType || String(formData.activityType).trim() === '') {
+    errors.activityType = 'Please select an activity type';
   }
-  return { valid: true };
+
+  const quantityResult = validateNumericInput(formData.quantity, 0.001, 10000);
+  if (!quantityResult.valid) {
+    errors.quantity = quantityResult.error;
+  }
+
+  if (!formData.unit || String(formData.unit).trim() === '') {
+    errors.unit = 'Unit is required';
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+  };
 }
 
 /**
- * Validate a date string is within an acceptable range
- * @param {string} dateStr - ISO date string
- * @returns {{ valid: boolean, error?: string }}
+ * Validates that a text field is non-empty and within the allowed length.
+ *
+ * @param {string} value - The text to validate.
+ * @param {number} [maxLength=200] - Maximum allowed character length.
+ * @returns {{ valid: boolean, error: string | null }}
  */
-export function validateDate(dateStr) {
-  if (!dateStr) return { valid: false, error: 'Date is required.' };
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return { valid: false, error: 'Invalid date format.' };
-  const now = new Date();
-  const tenYearsAgo = new Date(now.getFullYear() - 10, 0, 1);
-  if (date > now) return { valid: false, error: 'Date cannot be in the future.' };
-  if (date < tenYearsAgo) return { valid: false, error: 'Date is too far in the past.' };
-  return { valid: true };
-}
-
-/**
- * Validate a required text field
- * @param {string} value
- * @param {number} [maxLength=500]
- * @returns {{ valid: boolean, error?: string }}
- */
-export function validateTextField(value, maxLength = 500) {
-  if (!value || value.trim().length === 0) {
-    return { valid: false, error: 'This field is required.' };
+export function validateTextField(value, maxLength = 200) {
+  if (!value || String(value).trim() === '') {
+    return { valid: false, error: 'This field is required' };
   }
-  if (value.length > maxLength) {
-    return { valid: false, error: `Must be ${maxLength} characters or fewer.` };
+  if (String(value).length > maxLength) {
+    return { valid: false, error: `Must be ${maxLength} characters or fewer` };
   }
-  return { valid: true };
+  return { valid: true, error: null };
 }
