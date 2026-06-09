@@ -88,7 +88,7 @@ function appReducer(state, action) {
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
-const AppContext = createContext(null);
+export const AppContext = createContext(null);
 
 /**
  * Application-wide context provider.

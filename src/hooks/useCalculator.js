@@ -8,6 +8,7 @@ import { useContext } from 'react';
 import AppContext from '../context/AppContext';
 import { validateActivityForm } from '../utils/validators';
 import { sanitizeFormData } from '../utils/sanitizers';
+import { calculateTotalEmissions } from '../utils/calculator';
 
 /**
  * Provides activity logging with built-in validation and sanitization,
@@ -45,8 +46,12 @@ export function useCalculator() {
       return { success: false, errors };
     }
 
+    // Calculate emissions for the result before adding to context
+    const { total } = calculateTotalEmissions([sanitized]);
+    const activity = { ...sanitized, emissions: total };
+
     addActivity(sanitized);
-    return { success: true, errors: {} };
+    return { success: true, errors: {}, activity };
   }
 
   return {

@@ -130,7 +130,7 @@ export default function ActivityForm({ onSuccess }) {
       unit: unitValue,
     };
 
-    const { success, errors: validationErrors } = logActivity(formData);
+    const { success, errors: validationErrors, activity } = logActivity(formData);
 
     if (!success) {
       setErrors(validationErrors);
@@ -138,7 +138,7 @@ export default function ActivityForm({ onSuccess }) {
     } else {
       resetForm();
       announceToScreenReader('Activity logged successfully.');
-      if (onSuccess) onSuccess();
+      if (onSuccess) onSuccess(activity);
     }
 
     setSubmitting(false);
