@@ -1,3 +1,8 @@
+/**
+ * Bar chart visualising CO2e emissions by category.
+ * Includes an accessible screen-reader table fallback.
+ */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -5,78 +10,80 @@ import {
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import { CATEGORY_COLORS } from '../../constants/categories';
 
-/**
- * Custom tooltip for the emissions bar chart
- */
-function CustomTooltip({ active, payload, label }) {
-  if (!active || !payload || !payload.length) return null;
-  const value = payload[0].value;
-  return (
-    <div className="rounded-lg border border-surface-border bg-surface-card p-3 shadow-xl text-sm">
-      <p className="font-medium text-slate-200">{label}</p>
-      <p className="text-primary-400">
-        {value >= 1000 ? `${(value / 1000).toFixed(2)}t` : `${value.toFixed(1)} kg`} CO₂e
-      </p>
-    </div>
-  );
-}
-
-CustomTooltip.propTypes = {
-  active: PropTypes.bool,
-  payload: PropTypes.array,
-  label: PropTypes.string,
+const tooltipStyle = {
+  background: '#16213e',
+  border: '1px solid #0f3460',
+  borderRadius: '8px',
+  color: '#f1f5f9',
 };
 
 /**
- * Bar chart showing emissions per category
- * @param {Array<{category: string, label: string, value: number}>} data
+ * @param {{
+ *   data: Array<{ category: string, value: number, color: string }>,
+ *   title?: string,
+ *   ariaLabel?: string
+ * }} props
  */
-function EmissionsBarChart({ data, title = 'Emissions by Category' }) {
-  if (!data || data.length === 0) {
-    return (
-      <div className="flex h-64 items-center justify-center text-slate-500 text-sm">
-        No emissions data to display yet.
-      </div>
-    );
-  }
+function EmissionsBarChart({ data, title, ariaLabel }) {
+  const label = ariaLabel ?? `Bar chart: ${title ?? 'Emissions by category'}`;
 
   return (
-    <figure aria-label={title}>
-      <figcaption className="sr-only">{title}</figcaption>
-      <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#0f3460" vertical={false} />
+    <div role="img" aria-label={label}>
+      {title && (
+        <h3 className="text-sm font-medium text-slate-300 mb-2">{title}</h3>
+      )}
+
+      <ResponsiveContainer width="100%" height={200}>
+        <BarChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
           <XAxis
-            dataKey="label"
+            dataKey="category"
             tick={{ fill: '#94a3b8', fontSize: 12 }}
-            axisLine={{ stroke: '#0f3460' }}
+            axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: '#94a3b8', fontSize: 11 }}
+            tick={{ fill: '#94a3b8', fontSize: 12 }}
+            unit=" kg"
             axisLine={false}
             tickLine={false}
-            tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}t` : `${v}kg`)}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
-          <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={64}>
-            {data.map((entry) => (
-              <Cell
-                key={entry.category}
-                fill={CATEGORY_COLORS[entry.category] || '#22c55e'}
-              />
+          <Tooltip
+            formatter={(v) => [`${Number(v).toFixed(2)} kg CO₂e`, 'Emissions']}
+            contentStyle={tooltipStyle}
+            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+          />
+          <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+            {data.map((entry, i) => (
+              <Cell key={i} fill={entry.color} />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-    </figure>
+
+      {/* Screen-reader accessible table fallback */}
+      <table className="sr-only">
+        <caption>{label}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Category</th>
+            <th scope="col">Emissions (kg CO₂e)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((d) => (
+            <tr key={d.category}>
+              <td>{d.category}</td>
+              <td>{d.value?.toFixed(2) ?? '0.00'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -84,11 +91,12 @@ EmissionsBarChart.propTypes = {
   data: PropTypes.arrayOf(
     PropTypes.shape({
       category: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired,
       value: PropTypes.number.isRequired,
+      color: PropTypes.string.isRequired,
     })
   ).isRequired,
   title: PropTypes.string,
+  ariaLabel: PropTypes.string,
 };
 
-export default EmissionsBarChart;
+export default React.memo(EmissionsBarChart);

@@ -1,3 +1,8 @@
+/**
+ * Pie / donut chart visualising CO2e emissions breakdown.
+ * Includes a text legend (color + label) and an sr-only table fallback.
+ */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -8,81 +13,98 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { CATEGORY_COLORS } from '../../constants/categories';
+
+const tooltipStyle = {
+  background: '#16213e',
+  border: '1px solid #0f3460',
+  borderRadius: '8px',
+  color: '#f1f5f9',
+};
 
 /**
- * Custom tooltip for the pie chart
+ * Custom legend renderer — shows color swatch + label text (never color alone).
  */
-function CustomTooltip({ active, payload }) {
-  if (!active || !payload || !payload.length) return null;
-  const { name, value } = payload[0];
-  const total = payload[0].payload.total;
-  const pct = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+function renderLegend(props) {
+  const { payload } = props;
   return (
-    <div className="rounded-lg border border-surface-border bg-surface-card p-3 shadow-xl text-sm">
-      <p className="font-medium text-slate-200">{name}</p>
-      <p className="text-primary-400">
-        {value >= 1000 ? `${(value / 1000).toFixed(2)}t` : `${value.toFixed(1)} kg`} CO₂e
-      </p>
-      <p className="text-slate-400">{pct}% of total</p>
-    </div>
+    <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2 list-none p-0">
+      {payload.map((entry, i) => (
+        <li key={i} className="flex items-center gap-1.5 text-xs text-slate-400">
+          <span
+            aria-hidden="true"
+            className="w-3 h-3 rounded-full flex-shrink-0"
+            style={{ backgroundColor: entry.color }}
+          />
+          <span>{entry.value}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
-CustomTooltip.propTypes = {
-  active: PropTypes.bool,
+renderLegend.propTypes = {
   payload: PropTypes.array,
 };
 
 /**
- * Pie chart showing emissions breakdown by category
+ * @param {{
+ *   data: Array<{ category: string, value: number, color: string }>,
+ *   title?: string,
+ *   ariaLabel?: string
+ * }} props
  */
-function EmissionsPieChart({ data, title = 'Emissions Breakdown' }) {
-  if (!data || data.length === 0) {
-    return (
-      <div className="flex h-64 items-center justify-center text-slate-500 text-sm">
-        No emissions data to display yet.
-      </div>
-    );
-  }
-
-  const total = data.reduce((sum, d) => sum + d.value, 0);
-  const dataWithTotal = data.map((d) => ({ ...d, total }));
+function EmissionsPieChart({ data, title, ariaLabel }) {
+  const label = ariaLabel ?? `Pie chart: ${title ?? 'Emissions breakdown'}`;
 
   return (
-    <figure aria-label={title}>
-      <figcaption className="sr-only">{title}</figcaption>
-      <ResponsiveContainer width="100%" height={280}>
+    <div role="img" aria-label={label}>
+      {title && (
+        <h3 className="text-sm font-medium text-slate-300 mb-2">{title}</h3>
+      )}
+
+      <ResponsiveContainer width="100%" height={220}>
         <PieChart>
           <Pie
-            data={dataWithTotal}
+            data={data}
             dataKey="value"
-            nameKey="label"
+            nameKey="category"
             cx="50%"
             cy="50%"
-            outerRadius={100}
             innerRadius={55}
+            outerRadius={85}
             paddingAngle={3}
           >
-            {dataWithTotal.map((entry) => (
-              <Cell
-                key={entry.category}
-                fill={CATEGORY_COLORS[entry.category] || '#22c55e'}
-                stroke="transparent"
-              />
+            {data.map((entry, i) => (
+              <Cell key={i} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip content={<CustomTooltip />} />
-          <Legend
-            formatter={(value) => (
-              <span className="text-xs text-slate-400">{value}</span>
-            )}
-            iconType="circle"
-            iconSize={8}
+          <Tooltip
+            formatter={(v) => [`${Number(v).toFixed(2)} kg CO₂e`, 'Emissions']}
+            contentStyle={tooltipStyle}
           />
+          <Legend content={renderLegend} />
         </PieChart>
       </ResponsiveContainer>
-    </figure>
+
+      {/* Screen-reader accessible table fallback */}
+      <table className="sr-only">
+        <caption>{label}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Category</th>
+            <th scope="col">Emissions (kg CO₂e)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((d) => (
+            <tr key={d.category}>
+              <td>{d.category}</td>
+              <td>{d.value?.toFixed(2) ?? '0.00'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -90,11 +112,12 @@ EmissionsPieChart.propTypes = {
   data: PropTypes.arrayOf(
     PropTypes.shape({
       category: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired,
       value: PropTypes.number.isRequired,
+      color: PropTypes.string.isRequired,
     })
   ).isRequired,
   title: PropTypes.string,
+  ariaLabel: PropTypes.string,
 };
 
-export default EmissionsPieChart;
+export default React.memo(EmissionsPieChart);

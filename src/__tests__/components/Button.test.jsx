@@ -18,14 +18,24 @@ describe('Button', () => {
     expect(clicked).toBe(true);
   });
 
-  it('is disabled when loading', () => {
+  it('is disabled when loading prop is true', () => {
     render(<Button loading>Save</Button>);
     expect(screen.getByRole('button')).toBeDisabled();
+  });
+
+  it('shows sr-only loading text when loading', () => {
+    render(<Button loading>Save</Button>);
+    expect(screen.getByText('Loading, please wait')).toBeInTheDocument();
   });
 
   it('is disabled when disabled prop is set', () => {
     render(<Button disabled>Disabled</Button>);
     expect(screen.getByRole('button')).toBeDisabled();
+  });
+
+  it('uses ariaLabel prop on the button element', () => {
+    render(<Button ariaLabel="Submit the form">Submit</Button>);
+    expect(screen.getByRole('button', { name: 'Submit the form' })).toBeInTheDocument();
   });
 
   it('has no accessibility violations', async () => {
@@ -34,3 +44,4 @@ describe('Button', () => {
     expect(results).toHaveNoViolations();
   });
 });
+

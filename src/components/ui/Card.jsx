@@ -1,18 +1,22 @@
-import React from 'react';
+/**
+ * Generic surface card component — polymorphic via the `as` prop.
+ */
+
 import PropTypes from 'prop-types';
 
 /**
- * Surface card container with optional header and footer
+ * @param {{
+ *   children: React.ReactNode,
+ *   className?: string,
+ *   as?: 'div'|'section'|'article',
+ *   ariaLabel?: string
+ * }} props
  */
-function Card({ children, className = '', as: Tag = 'div', ...rest }) {
+export default function Card({ children, className, as: Tag = 'div', ariaLabel }) {
   return (
     <Tag
-      className={[
-        'rounded-xl border border-surface-border bg-surface-card p-6',
-        'shadow-lg',
-        className,
-      ].join(' ')}
-      {...rest}
+      aria-label={ariaLabel}
+      className={`bg-[#16213e] border border-[#0f3460] rounded-xl p-5 ${className ?? ''}`}
     >
       {children}
     </Tag>
@@ -22,37 +26,8 @@ function Card({ children, className = '', as: Tag = 'div', ...rest }) {
 Card.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
-  as: PropTypes.elementType,
+  as: PropTypes.oneOf(['div', 'section', 'article']),
+  ariaLabel: PropTypes.string,
 };
 
-/**
- * Card header sub-component
- */
-Card.Header = function CardHeader({ children, className = '' }) {
-  return (
-    <div className={`mb-4 border-b border-surface-border pb-4 ${className}`}>{children}</div>
-  );
-};
 
-Card.Header.propTypes = {
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string,
-};
-Card.Header.displayName = 'Card.Header';
-
-/**
- * Card footer sub-component
- */
-Card.Footer = function CardFooter({ children, className = '' }) {
-  return (
-    <div className={`mt-4 border-t border-surface-border pt-4 ${className}`}>{children}</div>
-  );
-};
-
-Card.Footer.propTypes = {
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string,
-};
-Card.Footer.displayName = 'Card.Footer';
-
-export default Card;

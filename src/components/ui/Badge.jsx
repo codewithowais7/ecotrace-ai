@@ -1,35 +1,41 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+/**
+ * Emission level badge — uses color + text + icon (never color alone).
+ * Reads level config from EMISSION_LEVEL_CONFIG constants.
+ */
 
-const variants = {
-  success: 'bg-primary-500/20 text-primary-400 border-primary-500/30',
-  warning: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  danger: 'bg-red-500/20 text-red-400 border-red-500/30',
-  info: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  neutral: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
-};
+import PropTypes from 'prop-types';
+import { EMISSION_LEVEL_CONFIG } from '../../constants/categories';
 
 /**
- * Small status badge component
+ * @param {{
+ *   level: 'low'|'medium'|'high'|'very-high',
+ *   value: string
+ * }} props
  */
-function Badge({ children, variant = 'neutral', className = '' }) {
+export default function Badge({ level, value }) {
+  const config = EMISSION_LEVEL_CONFIG[level] ?? EMISSION_LEVEL_CONFIG.low;
+
   return (
     <span
-      className={[
-        'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium',
-        variants[variant] || variants.neutral,
-        className,
-      ].join(' ')}
+      role="status"
+      aria-label={`Emission level: ${config.label}, ${value}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${config.bgColor} ${config.textColor}`}
     >
-      {children}
+      {/* Coloured dot — decorative reinforcement, not the sole indicator */}
+      <span
+        aria-hidden="true"
+        className="w-2 h-2 rounded-full flex-shrink-0"
+        style={{ backgroundColor: config.color }}
+      />
+      {/* Text label is the primary indicator */}
+      <span>{config.label}</span>
+      {/* Optional value string */}
+      {value && <span>· {value}</span>}
     </span>
   );
 }
 
 Badge.propTypes = {
-  children: PropTypes.node.isRequired,
-  variant: PropTypes.oneOf(['success', 'warning', 'danger', 'info', 'neutral']),
-  className: PropTypes.string,
+  level: PropTypes.oneOf(['low', 'medium', 'high', 'very-high']).isRequired,
+  value: PropTypes.string.isRequired,
 };
-
-export default Badge;

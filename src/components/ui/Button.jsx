@@ -1,33 +1,46 @@
-import React from 'react';
+/**
+ * Reusable Button component with variant, size, loading, and full accessibility.
+ */
+
 import PropTypes from 'prop-types';
 
-const variants = {
-  primary: 'bg-primary-500 hover:bg-primary-600 text-white focus-visible:ring-primary-400',
-  secondary: 'bg-surface-card hover:bg-surface-border text-slate-100 border border-surface-border focus-visible:ring-slate-400',
-  danger: 'bg-red-600 hover:bg-red-700 text-white focus-visible:ring-red-400',
-  ghost: 'bg-transparent hover:bg-surface-card text-slate-300 focus-visible:ring-slate-400',
+const variantClasses = {
+  primary: 'bg-green-600 hover:bg-green-500 text-white',
+  secondary:
+    'bg-[#0f3460] hover:bg-[#16213e] text-slate-200 border border-[#0f3460]',
+  danger: 'bg-red-700 hover:bg-red-600 text-white',
+  ghost: 'hover:bg-white/10 text-slate-300',
 };
 
-const sizes = {
+const sizeClasses = {
   sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-6 py-3 text-base',
+  md: 'px-4 py-2',
+  lg: 'px-6 py-3 text-lg',
 };
 
 /**
- * Accessible, styled button component
+ * @param {{
+ *   variant?: 'primary'|'secondary'|'danger'|'ghost',
+ *   size?: 'sm'|'md'|'lg',
+ *   loading?: boolean,
+ *   disabled?: boolean,
+ *   children: React.ReactNode,
+ *   onClick?: () => void,
+ *   type?: 'button'|'submit'|'reset',
+ *   ariaLabel?: string,
+ *   className?: string
+ * }} props
  */
-function Button({
-  children,
+export default function Button({
   variant = 'primary',
   size = 'md',
-  disabled = false,
   loading = false,
-  type = 'button',
+  disabled = false,
+  children,
   onClick,
-  className = '',
-  'aria-label': ariaLabel,
-  ...rest
+  type = 'button',
+  ariaLabel,
+  className,
 }) {
   return (
     <button
@@ -37,36 +50,35 @@ function Button({
       aria-label={ariaLabel}
       aria-busy={loading}
       className={[
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium',
-        'transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+        'inline-flex items-center justify-center rounded-md font-medium transition-colors',
+        'focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:outline-none',
         'disabled:opacity-50 disabled:cursor-not-allowed',
-        variants[variant] || variants.primary,
-        sizes[size] || sizes.md,
-        className,
+        variantClasses[variant] ?? variantClasses.primary,
+        sizeClasses[size] ?? sizeClasses.md,
+        className ?? '',
       ].join(' ')}
-      {...rest}
     >
       {loading && (
-        <span
-          className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"
-          aria-hidden="true"
-        />
+        <span className="mr-2 animate-spin" aria-hidden="true">
+          ⟳
+        </span>
       )}
+      {loading && <span className="sr-only">Loading, please wait</span>}
       {children}
     </button>
   );
 }
 
 Button.propTypes = {
-  children: PropTypes.node.isRequired,
   variant: PropTypes.oneOf(['primary', 'secondary', 'danger', 'ghost']),
   size: PropTypes.oneOf(['sm', 'md', 'lg']),
-  disabled: PropTypes.bool,
   loading: PropTypes.bool,
-  type: PropTypes.oneOf(['button', 'submit', 'reset']),
+  disabled: PropTypes.bool,
+  children: PropTypes.node.isRequired,
   onClick: PropTypes.func,
+  type: PropTypes.oneOf(['button', 'submit', 'reset']),
+  ariaLabel: PropTypes.string,
   className: PropTypes.string,
-  'aria-label': PropTypes.string,
 };
 
-export default Button;
+

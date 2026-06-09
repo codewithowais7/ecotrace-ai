@@ -1,24 +1,15 @@
-import React from 'react';
-
 /**
- * Skip navigation link — visible on keyboard focus for screen reader / keyboard users
- * Must be the first interactive element on the page
+ * Skip navigation link — first focusable element on every page.
+ * Visible only on keyboard focus for screen reader / keyboard-only users.
  */
-function SkipLink() {
+
+export default function SkipLink() {
   return (
     <a
       href="#main-content"
-      className={[
-        'sr-only focus:not-sr-only',
-        'fixed top-2 left-2 z-[100] rounded-lg bg-primary-500 px-4 py-2',
-        'text-sm font-semibold text-white shadow-lg',
-        'focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-surface',
-        'transition-all duration-150',
-      ].join(' ')}
+      className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-green-600 focus:text-white focus:rounded-md focus:text-sm focus:font-medium focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
     >
       Skip to main content
     </a>
   );
 }
-
-export default SkipLink;

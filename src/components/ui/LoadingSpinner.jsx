@@ -1,35 +1,44 @@
-import React from 'react';
+/**
+ * Loading spinner with accessible status role and screen-reader text.
+ */
+
 import PropTypes from 'prop-types';
 
-/**
- * Animated loading spinner with accessible label
- */
-function LoadingSpinner({ size = 'md', label = 'Loading...', className = '' }) {
-  const sizes = {
-    sm: 'w-4 h-4 border-2',
-    md: 'w-8 h-8 border-2',
-    lg: 'w-12 h-12 border-4',
-    xl: 'w-16 h-16 border-4',
-  };
+const sizeMap = {
+  sm: 'w-4 h-4',
+  md: 'w-6 h-6',
+  lg: 'w-8 h-8',
+};
 
+/**
+ * @param {{
+ *   message?: string,
+ *   size?: 'sm'|'md'|'lg'
+ * }} props
+ */
+export default function LoadingSpinner({ message = 'Loading...', size = 'md' }) {
   return (
-    <div role="status" aria-label={label} className={`flex items-center justify-center ${className}`}>
-      <span
+    <div role="status" aria-live="polite" className="flex items-center gap-2">
+      {/* Visual spinner — decorative, announcement is via sr-only text */}
+      <div
         aria-hidden="true"
-        className={[
-          'rounded-full border-primary-500 border-t-transparent animate-spin',
-          sizes[size] || sizes.md,
-        ].join(' ')}
+        className={`animate-spin rounded-full border-2 border-green-500 border-t-transparent ${sizeMap[size] ?? sizeMap.md}`}
       />
-      <span className="sr-only">{label}</span>
+      {/* Always present for screen readers */}
+      <span className="sr-only">{message}</span>
+      {/* Visible label on md/lg sizes */}
+      {size !== 'sm' && (
+        <span className="text-slate-400 text-sm" aria-hidden="true">
+          {message}
+        </span>
+      )}
     </div>
   );
 }
 
 LoadingSpinner.propTypes = {
-  size: PropTypes.oneOf(['sm', 'md', 'lg', 'xl']),
-  label: PropTypes.string,
-  className: PropTypes.string,
+  message: PropTypes.string,
+  size: PropTypes.oneOf(['sm', 'md', 'lg']),
 };
 
-export default LoadingSpinner;
+
