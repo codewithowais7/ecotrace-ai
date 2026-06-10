@@ -41,7 +41,7 @@ export default function CarbonContext({ totalKgCO2e, level }) {
       <ul
         className="grid grid-cols-2 gap-2"
         aria-label="Real-world carbon equivalencies"
-        role="list"
+       
       >
         {equivalencies.map((eq, i) => (
           <li
@@ -75,3 +75,4 @@ CarbonContext.propTypes = {
   /** Current emission level bucket */
   level: PropTypes.oneOf(['low', 'medium', 'high', 'very-high']).isRequired,
 };
+

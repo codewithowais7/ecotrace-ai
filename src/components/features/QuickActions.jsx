@@ -130,7 +130,7 @@ export default function QuickActions() {
       <p className="text-sm text-slate-400 mb-4">
         Tap any common activity to instantly log it to your footprint — no form needed.
       </p>
-      <ul className="grid grid-cols-2 sm:grid-cols-4 gap-2" role="list">
+      <ul className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {QUICK_ACTIONS.map((action) => {
           const isLogged = recentlyClicked === action.id;
           return (
@@ -167,3 +167,4 @@ export default function QuickActions() {
 }
 
 QuickActions.displayName = 'QuickActions';
+
