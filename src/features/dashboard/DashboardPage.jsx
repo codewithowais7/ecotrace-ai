@@ -1,5 +1,7 @@
 /**
- * @fileoverview Dashboard page showing today's emission summary, charts, activity form, and log.
+ * @fileoverview Dashboard page — assembles today's emission summary, charts, activity form, and log.
+ * Each section delegates to a focused sub-component: DailySummaryCard, CarbonContext,
+ * QuickActions, ActivityForm, and ActivityList.
  * @module features/dashboard/DashboardPage
  */
 
@@ -8,17 +10,19 @@ import AppContext from '../../context/AppContext';
 import { useCalculator } from '../../hooks/useCalculator';
 import { useAccessibility } from '../../hooks/useAccessibility';
 import { ACTIVITY_CATEGORIES } from '../../constants/categories';
-import { formatEmissions } from '../../utils/calculator';
 
 import Card from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
 import ActivityForm from '../../components/forms/ActivityForm';
 import EmissionsBarChart from '../../components/charts/EmissionsBarChart';
 import EmissionsPieChart from '../../components/charts/EmissionsPieChart';
+import DailySummaryCard from '../../components/features/DailySummaryCard';
+import CarbonContext from '../../components/features/CarbonContext';
+import QuickActions from '../../components/features/QuickActions';
+import ActivityList from '../../components/features/ActivityList';
 
 /**
- * Dashboard page displaying the user's daily emission summary, bar/pie charts,
- * the activity log form, and the scrollable activity list.
+ * Dashboard page — assembles all daily tracking sections into a single scrollable layout.
+ * Delegates rendering responsibility to focused sub-components for maintainability.
  *
  * @returns {JSX.Element} The rendered dashboard page
  */
@@ -27,7 +31,7 @@ export default function DashboardPage() {
   const { activities, removeActivity } = useCalculator();
   const { announceToScreenReader } = useAccessibility();
 
-  // Build chart data from breakdown
+  // Build chart data from category breakdown — memoized to avoid recomputation on unrelated updates
   const chartData = useMemo(
     () =>
       ACTIVITY_CATEGORIES.map((cat) => ({
@@ -37,11 +41,6 @@ export default function DashboardPage() {
       })),
     [dailyStats]
   );
-
-  const remaining = userProfile.dailyGoal - dailyStats.total;
-  const overBy = dailyStats.total - userProfile.dailyGoal;
-  const barColor =
-    goalProgress > 100 ? 'bg-red-500' : goalProgress > 75 ? 'bg-yellow-500' : 'bg-green-500';
 
   return (
     <main
@@ -53,41 +52,22 @@ export default function DashboardPage() {
 
       {/* ── Section 1: Today's Summary ─────────────────────────────────────── */}
       <section aria-label="Today's emissions summary">
-        <Card>
-          <h2 className="text-lg font-semibold text-white mb-4">Today&apos;s Footprint</h2>
-          <div className="flex items-center gap-3 flex-wrap">
-            <p className="text-4xl font-bold text-green-400">{formatEmissions(dailyStats.total)}</p>
-            <Badge level={emissionLevel} value={formatEmissions(dailyStats.total)} />
-          </div>
+        <DailySummaryCard
+          dailyStats={dailyStats}
+          emissionLevel={emissionLevel}
+          goalProgress={goalProgress}
+          userProfile={userProfile}
+        />
+      </section>
 
-          {/* Goal progress */}
-          <div className="mt-5">
-            <p className="text-sm text-slate-400 mb-2">
-              Goal: {userProfile.dailyGoal} kg CO₂e &nbsp;·&nbsp; {goalProgress.toFixed(0)}% used
-            </p>
-            <div
-              role="progressbar"
-              aria-valuenow={Math.min(goalProgress, 100)}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={`Goal progress: ${goalProgress.toFixed(0)}% of ${userProfile.dailyGoal} kg daily goal`}
-              className="h-3 bg-[#0f3460] rounded-full overflow-hidden"
-            >
-              <div
-                className={`h-full transition-all duration-500 rounded-full ${barColor}`}
-                style={{ width: `${Math.min(goalProgress, 100)}%` }}
-              />
-            </div>
-            <p className="text-xs text-slate-500 mt-1">
-              {goalProgress <= 100
-                ? `${remaining.toFixed(2)} kg remaining`
-                : `${overBy.toFixed(2)} kg over goal`}
-            </p>
-          </div>
+      {/* ── Section 1b: Carbon Context (understand what the number means) ──── */}
+      <section aria-label="What your carbon footprint means">
+        <Card>
+          <CarbonContext totalKgCO2e={dailyStats.total} level={emissionLevel} />
         </Card>
       </section>
 
-      {/* ── Section 2: Charts ──────────────────────────────────────────────── */}
+      {/* ── Section 2: Charts (only when activities exist) ─────────────────── */}
       {activities.length > 0 && (
         <section aria-label="Emissions breakdown by category">
           <h2 className="text-lg font-semibold text-white mb-4">Breakdown</h2>
@@ -110,53 +90,28 @@ export default function DashboardPage() {
         </section>
       )}
 
-      {/* ── Section 3: Log Activity ─────────────────────────────────────────── */}
-      <section aria-label="Log new activity">
-        <h2 className="text-lg font-semibold text-white mb-4">Log Activity</h2>
+      {/* ── Section 3: Log Activity (QuickActions + custom form) ───────────── */}
+      <section aria-label="Log carbon footprint activities">
+        {/* Quick one-click buttons for common daily activities */}
         <Card>
-          <ActivityForm onSuccess={() => announceToScreenReader('Activity added to your log')} />
+          <QuickActions />
+          <div className="mt-5 pt-4 border-t border-[#0f3460]">
+            <h2 className="text-lg font-semibold text-white mb-3">Log Custom Activity</h2>
+            <ActivityForm
+              onSuccess={() => announceToScreenReader('Activity added to your log')}
+            />
+          </div>
         </Card>
       </section>
 
       {/* ── Section 4: Activity List ───────────────────────────────────────── */}
-      <section aria-label="Today's logged activities">
-        <h2 className="text-lg font-semibold text-white mb-4">Today&apos;s Log</h2>
-        <Card>
-          {activities.length === 0 ? (
-            <p className="text-slate-400">No activities logged yet. Add your first one above.</p>
-          ) : (
-            <ul aria-label="List of today's activities" className="divide-y divide-[#0f3460]">
-              {activities.map((act) => (
-                <li key={act.id} className="flex justify-between items-center py-3">
-                  <div>
-                    <span className="text-slate-200 capitalize">
-                      {act.activityType?.replace(/_/g, ' ')}
-                    </span>
-                    <span className="text-slate-400 text-sm ml-2">
-                      {act.quantity} {act.unit}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      removeActivity(act.id);
-                      announceToScreenReader(
-                        `Removed ${act.activityType?.replace(/_/g, ' ')} activity`
-                      );
-                    }}
-                    aria-label={`Remove ${act.activityType?.replace(/_/g, ' ')} activity`}
-                    className="text-red-400 hover:text-red-300 text-sm focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none rounded px-2 py-1 transition-colors"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-      </section>
+      <ActivityList
+        activities={activities}
+        onRemove={removeActivity}
+        onAnnounce={announceToScreenReader}
+      />
     </main>
   );
 }
 
 DashboardPage.displayName = 'DashboardPage';
-

@@ -73,6 +73,16 @@ StepOne.propTypes = {
   error: PropTypes.string,
 };
 
+/**
+ * Step 2: Location and primary transport selection.
+ *
+ * @param {Object} props
+ * @param {string} props.location - Currently selected location key (e.g. 'india')
+ * @param {string} props.transport - Currently selected primary transport key (e.g. 'bus')
+ * @param {Function} props.onLocationChange - Change handler for the location select
+ * @param {Function} props.onTransportChange - Change handler for the transport select
+ * @returns {JSX.Element} The rendered step-2 section
+ */
 function StepTwo({ location, transport, onLocationChange, onTransportChange }) {
   return (
     <section aria-label="Step 2: Location and transport">
@@ -109,6 +119,16 @@ StepTwo.propTypes = {
   onLocationChange: PropTypes.func.isRequired,
   onTransportChange: PropTypes.func.isRequired,
 };
+
+/**
+ * Step 3: Daily carbon goal entry.
+ *
+ * @param {Object} props
+ * @param {string|number} props.goal - Current daily CO2e goal value
+ * @param {Function} props.onChange - Change handler for the goal input
+ * @param {string} [props.error] - Validation error message
+ * @returns {JSX.Element} The rendered step-3 section
+ */
 
 function StepThree({ goal, onChange, error }) {
   return (

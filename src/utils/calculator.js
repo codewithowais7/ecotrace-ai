@@ -34,6 +34,8 @@ export function calculateTransportEmissions(transportType, distanceKm) {
   const distance = sanitizeNumber(distanceKm);
   const factor = EMISSION_FACTORS.TRANSPORT[transportType];
   if (factor === undefined) return 0;
+  // Formula: distance(km) × emission_factor(kgCO₂e/km) = emissions(kgCO₂e)
+  // Source: EPA GHG Emission Factors Hub 2023
   return round(factor * distance);
 }
 
@@ -49,6 +51,8 @@ export function calculateFoodEmissions(foodType, quantity) {
   const qty = sanitizeNumber(quantity);
   const factor = EMISSION_FACTORS.FOOD[foodType];
   if (factor === undefined) return 0;
+  // Formula: quantity(kg or meal) × emission_factor(kgCO₂e/unit) = emissions(kgCO₂e)
+  // Source: Poore & Nemecek, Science (2018); IPCC AR6 Chapter 7
   return round(factor * qty);
 }
 
@@ -64,6 +68,8 @@ export function calculateEnergyEmissions(energyType, amount) {
   const qty = sanitizeNumber(amount);
   const factor = EMISSION_FACTORS.ENERGY[energyType];
   if (factor === undefined) return 0;
+  // Formula: consumption(kWh|m³|kg) × emission_factor(kgCO₂e/unit) = emissions(kgCO₂e)
+  // Electricity factor: 0.708 kgCO₂e/kWh — Central Electricity Authority (CEA) India 2023
   return round(factor * qty);
 }
 
@@ -79,6 +85,8 @@ export function calculateShoppingEmissions(itemType, quantity) {
   const qty = sanitizeNumber(quantity);
   const factor = EMISSION_FACTORS.SHOPPING[itemType];
   if (factor === undefined) return 0;
+  // Formula: items × lifecycle_emission_factor(kgCO₂e/item) = emissions(kgCO₂e)
+  // Source: Carbon Trust Product Footprint Benchmarks (manufacturing phase only)
   return round(factor * qty);
 }
 
@@ -122,6 +130,7 @@ export function calculateTotalEmissions(activities) {
     }
   }
 
+  // Sum all category subtotals to get the daily total
   const total = round(breakdown.transport + breakdown.food + breakdown.energy + breakdown.shopping);
 
   return { total, breakdown };

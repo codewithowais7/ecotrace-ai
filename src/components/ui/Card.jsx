@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
  * @param {string} [props.ariaLabel] - Accessible label for landmark semantics
  * @returns {JSX.Element} The rendered card element
  */
-export default function Card({ children, className, as: Tag = 'div', ariaLabel }) {
+export default function Card({ children, className = undefined, as: Tag = 'div', ariaLabel = undefined }) {
   return (
     <Tag
       aria-label={ariaLabel}

@@ -127,10 +127,14 @@ export function AppProvider({ children }) {
 
   // ── Computed values ────────────────────────────────────────────────────────
 
+  // Memoize dailyStats to prevent recalculation on unrelated state changes.
+  // Only recalculates when the activities array reference changes.
   const dailyStats = useMemo(() => calculateTotalEmissions(state.activities), [state.activities]);
 
+  // Memoize emission level so downstream components only re-render when the level band changes.
   const emissionLevel = useMemo(() => getEmissionLevel(dailyStats.total), [dailyStats.total]);
 
+  // Memoize goal percentage so the progress bar only recalculates when total or goal changes.
   const goalProgress = useMemo(
     () => calculateGoalPercentage(dailyStats.total, state.userProfile.dailyGoal),
     [dailyStats.total, state.userProfile.dailyGoal]
@@ -143,6 +147,7 @@ export function AppProvider({ children }) {
    *
    * @param {Object} activityData - Raw form data for the activity.
    */
+  // Stable dispatch wrapper — useCallback prevents child re-renders when parent state changes.
   const addActivity = useCallback((activityData) => {
     const sanitized = sanitizeFormData(activityData);
     const activity = {
@@ -158,6 +163,7 @@ export function AppProvider({ children }) {
    *
    * @param {string} id - The activity id to remove.
    */
+  // Stable dispatch wrapper — removes an activity by its unique id.
   const removeActivity = useCallback((id) => {
     dispatch({ type: ActionTypes.REMOVE_ACTIVITY, payload: id });
   }, []);
@@ -165,6 +171,7 @@ export function AppProvider({ children }) {
   /**
    * Clear all activities for the current day.
    */
+  // Stable dispatch wrapper — clears all logged activities for the current session.
   const clearActivities = useCallback(() => {
     dispatch({ type: ActionTypes.CLEAR_ACTIVITIES });
   }, []);
@@ -174,6 +181,7 @@ export function AppProvider({ children }) {
    *
    * @param {Partial<{ name: string, location: string, dailyGoal: number }>} updates
    */
+  // Stable dispatch wrapper — merges partial updates into the persisted user profile.
   const updateUserProfile = useCallback((updates) => {
     dispatch({ type: ActionTypes.UPDATE_USER_PROFILE, payload: updates });
   }, []);
@@ -183,6 +191,7 @@ export function AppProvider({ children }) {
    *
    * @param {boolean} val
    */
+  // Stable dispatch wrapper — marks onboarding as complete or rolls it back.
   const setOnboardingComplete = useCallback((val) => {
     dispatch({ type: ActionTypes.SET_ONBOARDING_COMPLETE, payload: Boolean(val) });
   }, []);
@@ -192,6 +201,7 @@ export function AppProvider({ children }) {
    *
    * @param {Array} tips
    */
+  // Stable dispatch wrapper — replaces the cached AI insight tips.
   const setInsights = useCallback((tips) => {
     dispatch({ type: ActionTypes.SET_INSIGHTS, payload: Array.isArray(tips) ? tips : [] });
   }, []);

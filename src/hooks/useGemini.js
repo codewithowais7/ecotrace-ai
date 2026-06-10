@@ -3,12 +3,13 @@
  * @module hooks/useGemini
  */
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useContext } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 import { checkRateLimit } from '../utils/security';
 import { sanitizeApiResponse } from '../utils/sanitizers';
 import { APP_CONSTANTS } from '../constants/categories';
+import { AppContext } from '../context/AppContext';
 
 /** @typedef {import('../utils/types').InsightTip} InsightTip */
 
@@ -29,6 +30,10 @@ export function useGemini() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastResponse, setLastResponse] = useState(null);
+
+  // Read user profile from context so callers don’t need to pass it as a parameter
+  const context = useContext(AppContext);
+  const userProfile = context?.userProfile ?? { name: '', location: 'india', dailyGoal: 13.4 };
 
   /** Lazily-initialised Gemini model — only created if API key is present */
   const model = useRef(null);
@@ -55,25 +60,32 @@ export function useGemini() {
     }
 
     // ── Guard: rate limit ─────────────────────────────────────────────────────
+    // Enforce minimum 3s between API calls to prevent quota exhaustion
+    // and ensure responsible Gemini API usage (APP_CONSTANTS.GEMINI_RATE_LIMIT_MS).
     if (!checkRateLimit(rateLimitStore, 'gemini', APP_CONSTANTS.GEMINI_RATE_LIMIT_MS)) {
       setError('Please wait a moment before requesting new insights.');
       return [];
     }
 
-    // ── Build prompt ──────────────────────────────────────────────────────────
+    // ── Build personalised prompt ──────────────────────────────────────────────
+    const breakdown = emissionData.breakdown || {};
+    const topCategory =
+      Object.entries(breakdown).sort(([, a], [, b]) => b - a)[0]?.[0] || 'general';
+    const userName = userProfile.name ? userProfile.name : 'a user';
+    const userLocation = userProfile.location || 'India';
+
     const prompt = [
-      'You are an environmental expert.',
-      `A user has the following daily carbon footprint:`,
-      `Total: ${emissionData.total.toFixed(2)} kg CO2e.`,
-      `Breakdown:`,
-      `  Transport ${(emissionData.breakdown.transport ?? 0).toFixed(2)} kg,`,
-      `  Food ${(emissionData.breakdown.food ?? 0).toFixed(2)} kg,`,
-      `  Energy ${(emissionData.breakdown.energy ?? 0).toFixed(2)} kg,`,
-      `  Shopping ${(emissionData.breakdown.shopping ?? 0).toFixed(2)} kg.`,
-      `Level: ${emissionData.level}.`,
-      'Provide exactly 5 specific, actionable tips to reduce their carbon footprint.',
+      `You are a personal carbon footprint reduction advisor for ${userName} in ${userLocation}.`,
+      `Their daily carbon footprint: ${emissionData.total?.toFixed(2)} kg CO2e (level: ${emissionData.level}).`,
+      `Breakdown — Transport: ${(breakdown.transport ?? 0).toFixed(2)}kg,`,
+      `Food: ${(breakdown.food ?? 0).toFixed(2)}kg,`,
+      `Energy: ${(breakdown.energy ?? 0).toFixed(2)}kg,`,
+      `Shopping: ${(breakdown.shopping ?? 0).toFixed(2)}kg.`,
+      `Their highest emission area is ${topCategory}.`,
+      'Provide exactly 5 specific, PERSONALIZED, actionable tips to help them reduce their carbon footprint starting today.',
+      'Each tip must be directly relevant to their actual data, not generic advice.',
       'Respond ONLY with a JSON array, no other text:',
-      '[{"tip": "...", "category": "transport|food|energy|shopping", "impact": "low|medium|high", "saving": "estimated kg CO2e saved"}]',
+      '[{"tip":"...","category":"transport|food|energy|shopping","impact":"low|medium|high","saving":"X kg CO2e/day"}]',
     ]
       .join(' ')
       .slice(0, APP_CONSTANTS.MAX_PROMPT_CHARS * 3);

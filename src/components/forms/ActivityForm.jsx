@@ -100,7 +100,7 @@ export default function ActivityForm({ onSuccess = undefined }) {
   const [activityType, setActivityType] = useState('');
   const [quantity, setQuantity] = useState('');
   const [errors, setErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dynamicOptions = OPTIONS_MAP[category] ?? [];
   const unitLabel = `Quantity (${UNIT_MAP[category] ?? 'units'})`;
@@ -115,7 +115,7 @@ export default function ActivityForm({ onSuccess = undefined }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setSubmitting(true);
+    setIsSubmitting(true);
     setErrors({});
 
     const formData = {
@@ -136,7 +136,7 @@ export default function ActivityForm({ onSuccess = undefined }) {
       if (onSuccess) onSuccess(activity);
     }
 
-    setSubmitting(false);
+    setIsSubmitting(false);
   }
 
   const hasErrors = Object.keys(errors).length > 0;
@@ -219,7 +219,7 @@ export default function ActivityForm({ onSuccess = undefined }) {
       )}
 
       {/* Submit */}
-      <Button type="submit" loading={submitting} className="w-full mt-1">
+      <Button type="submit" loading={isSubmitting} className="w-full mt-1">
         Log Activity
       </Button>
     </form>
